@@ -10,7 +10,7 @@ export default function Landing() {
         <p className="text-xl text-gray-500 mb-10">Fresh. Fast. Campus-delivered.</p>
         
         <button 
-          onClick={() => window.location.href = '/api/auth/google'}
+          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`}
           className="bg-primary text-white text-lg font-bold py-4 px-10 rounded-full shadow-lg hover:bg-orange-600 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 mb-16"
         >
           Login with Google

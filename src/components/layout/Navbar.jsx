@@ -52,7 +52,7 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <button onClick={() => window.location.href = '/api/auth/google'} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition">
+                <button onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition">
                   Login
                 </button>
               )}
