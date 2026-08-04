@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Clock, ShoppingBag } from 'lucide-react'
 
 export default function ShopCard({ shop }) {
   return (
@@ -13,33 +12,22 @@ export default function ShopCard({ shop }) {
             <span className="text-sm font-medium text-gray-500">{shop.isOpen ? 'Open' : 'Closed'}</span>
           </div>
         </div>
-        
+
         {shop.description && (
           <p className="text-gray-500 text-sm mb-4 line-clamp-2">{shop.description}</p>
         )}
-        
-        <div className="flex items-center gap-4 mb-6 mt-auto">
-          <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-            <Clock className="w-4 h-4" />
-            <span>{shop.estimatedPrepTime} mins</span>
-          </div>
-          {shop.minOrder > 0 && (
-            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-              <ShoppingBag className="w-4 h-4" />
-              <span>₹{shop.minOrder} min</span>
-            </div>
-          )}
+
+        <div className="mt-auto">
+          <Link
+            to={`/shops/${shop._id}/menu`}
+            className="block w-full bg-primary text-white text-center py-2.5 rounded-lg font-medium hover:bg-orange-600 transition"
+            onClick={(e) => {
+              if (!shop.isOpen) e.preventDefault()
+            }}
+          >
+            View Menu
+          </Link>
         </div>
-        
-        <Link 
-          to={`/shops/${shop._id}/menu`}
-          className="w-full bg-primary text-white text-center py-2.5 rounded-lg font-medium hover:bg-orange-600 transition disabled:opacity-50"
-          onClick={(e) => {
-            if (!shop.isOpen) e.preventDefault()
-          }}
-        >
-          View Menu
-        </Link>
       </div>
     </div>
   )

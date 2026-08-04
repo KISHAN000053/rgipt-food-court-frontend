@@ -14,6 +14,7 @@ export default function AdminOrders() {
             <tr className="text-left text-sm font-medium text-gray-500 border-b border-gray-100">
               <th className="pb-3 pr-4">Order ID</th>
               <th className="pb-3 px-4">Customer</th>
+              <th className="pb-3 px-4">Shop</th>
               <th className="pb-3 px-4">Amount</th>
               <th className="pb-3 pl-4">Status</th>
             </tr>
@@ -23,10 +24,14 @@ export default function AdminOrders() {
               <tr key={order._id} className="border-b border-gray-50 last:border-0">
                 <td className="py-4 pr-4 text-sm font-mono">{order._id.slice(-6).toUpperCase()}</td>
                 <td className="py-4 px-4 font-medium text-secondary">{order.user?.name}</td>
-                <td className="py-4 px-4 font-medium">₹{order.totalAmount}</td>
+                <td className="py-4 px-4 text-gray-600">{order.shop?.name}</td>
+                <td className="py-4 px-4 font-medium">₹{order.total}</td>
                 <td className="py-4 pl-4"><OrderStatusBadge status={order.status} /></td>
               </tr>
             ))}
+            {orders?.length === 0 && (
+              <tr><td colSpan={5} className="py-8 text-center text-gray-400">No orders yet.</td></tr>
+            )}
           </tbody>
         </table>
       </div>

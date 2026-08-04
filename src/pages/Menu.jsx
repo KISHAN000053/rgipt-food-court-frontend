@@ -6,7 +6,7 @@ import MenuItemCard from '../components/MenuItemCard'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import FilterBar from '../components/FilterBar'
 import EmptyState from '../components/ui/EmptyState'
-import { ArrowLeft, Clock, ShoppingBag, Utensils } from 'lucide-react'
+import { ArrowLeft, Utensils } from 'lucide-react'
 
 export default function Menu() {
   const { id } = useParams()
@@ -66,19 +66,6 @@ export default function Menu() {
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${shop.isOpen ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
             {shop.isOpen ? 'Open' : 'Closed'}
           </span>
-        </div>
-        
-        <div className="flex items-center gap-6 pt-4 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-secondary font-medium">
-            <Clock className="w-5 h-5 text-gray-400" />
-            {shop.estimatedPrepTime} mins
-          </div>
-          {shop.minOrder > 0 && (
-            <div className="flex items-center gap-2 text-secondary font-medium">
-              <ShoppingBag className="w-5 h-5 text-gray-400" />
-              Min ₹{shop.minOrder}
-            </div>
-          )}
         </div>
       </div>
 

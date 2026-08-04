@@ -19,6 +19,32 @@ export const useOwnerOrders = () => useQuery({ queryKey: ['owner', 'orders'], qu
 export const useOwnerMenu = () => useQuery({ queryKey: ['owner', 'menu'], queryFn: () => api.get('/owner/menu').then(r => r.data) })
 export const useOwnerStats = () => useQuery({ queryKey: ['owner', 'stats'], queryFn: () => api.get('/owner/stats').then(r => r.data) })
 
+const invalidateOwnerMenu = (queryClient) => queryClient.invalidateQueries({ queryKey: ['owner', 'menu'] })
+
+export const useCreateMenuItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.post('/owner/menu', data).then(r => r.data),
+    onSuccess: () => invalidateOwnerMenu(queryClient)
+  })
+}
+
+export const useUpdateMenuItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => api.patch(`/owner/menu/${id}`, data).then(r => r.data),
+    onSuccess: () => invalidateOwnerMenu(queryClient)
+  })
+}
+
+export const useDeleteMenuItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => api.delete(`/owner/menu/${id}`).then(r => r.data),
+    onSuccess: () => invalidateOwnerMenu(queryClient)
+  })
+}
+
 export const useAdminShops = () => useQuery({ queryKey: ['admin', 'shops'], queryFn: () => api.get('/admin/shops').then(r => r.data) })
 export const useAdminUsers = () => useQuery({ queryKey: ['admin', 'users'], queryFn: () => api.get('/admin/users').then(r => r.data) })
 export const useAdminOrders = () => useQuery({ queryKey: ['admin', 'orders'], queryFn: () => api.get('/admin/orders').then(r => r.data) })
