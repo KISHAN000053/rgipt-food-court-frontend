@@ -23,10 +23,12 @@ export default function ShopCard({ shop }) {
             <Clock className="w-4 h-4" />
             <span>{shop.estimatedPrepTime} mins</span>
           </div>
-          <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-            <ShoppingBag className="w-4 h-4" />
-            <span>₹{shop.minOrder} min</span>
-          </div>
+          {shop.minOrder > 0 && (
+            <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+              <ShoppingBag className="w-4 h-4" />
+              <span>₹{shop.minOrder} min</span>
+            </div>
+          )}
         </div>
         
         <Link 

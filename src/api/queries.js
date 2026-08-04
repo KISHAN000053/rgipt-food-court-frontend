@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from './axios'
 
 export const useShops = () => useQuery({ queryKey: ['shops'], queryFn: () => api.get('/shops').then(r => r.data) })
-export const useMenu = (shopId) => useQuery({ queryKey: ['menu', shopId], queryFn: () => api.get(`/shops/${shopId}/menu`).then(r => r.data), enabled: !!shopId })
+export const useMenu = (shopId) => useQuery({ queryKey: ['menu', shopId], queryFn: () => api.get(`/menu/shops/${shopId}/menu`).then(r => r.data), enabled: !!shopId })
 export const useMyOrders = () => useQuery({ queryKey: ['orders', 'my'], queryFn: () => api.get('/orders/my').then(r => r.data) })
 export const useOrder = (id) => useQuery({ queryKey: ['order', id], queryFn: () => api.get(`/orders/${id}`).then(r => r.data), enabled: !!id })
 

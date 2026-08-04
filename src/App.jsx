@@ -76,7 +76,7 @@ export default function App() {
   return (
     <Suspense fallback={<FullPageLoading />}>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/home" replace /> : <Landing />} />
+        <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/home'} replace /> : <Landing />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/code-of-conduct" element={<CodeOfConduct />} />
