@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from './axios'
 
 export const useShops = () => useQuery({ queryKey: ['shops'], queryFn: () => api.get('/shops').then(r => r.data) })
@@ -15,3 +15,19 @@ export const useAdminShops = () => useQuery({ queryKey: ['admin', 'shops'], quer
 export const useAdminUsers = () => useQuery({ queryKey: ['admin', 'users'], queryFn: () => api.get('/admin/users').then(r => r.data) })
 export const useAdminOrders = () => useQuery({ queryKey: ['admin', 'orders'], queryFn: () => api.get('/admin/orders').then(r => r.data) })
 export const useAdminAnalytics = () => useQuery({ queryKey: ['admin', 'analytics'], queryFn: () => api.get('/admin/analytics').then(r => r.data) })
+
+export const useCreateShop = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.post('/admin/shops', data).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'shops'] })
+  })
+}
+
+export const useUpdateShop = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => api.patch(`/admin/shops/${id}`, data).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'shops'] })
+  })
+}
