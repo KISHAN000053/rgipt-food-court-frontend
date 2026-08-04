@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useOrder } from '../api/queries'
 import { useSocket } from '../hooks/useSocket'
 import OrderTracker from '../components/OrderTracker'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import OrderStatusBadge from '../components/ui/OrderStatusBadge'
-import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
+import { ArrowLeft, Clock, MapPin, Phone, Store } from 'lucide-react'
 
 export default function OrderDetail() {
   const { id } = useParams()
@@ -21,6 +21,19 @@ export default function OrderDetail() {
       <Link to="/orders" className="flex items-center gap-2 text-gray-500 hover:text-primary transition font-medium mb-6">
         <ArrowLeft className="w-4 h-4" /> Back to Orders
       </Link>
+
+      {order.siblings?.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3 mb-6 flex items-center gap-2">
+          <Store className="w-4 h-4 flex-shrink-0" />
+          This checkout also included {order.siblings.length} other shop{order.siblings.length > 1 ? 's' : ''}:{' '}
+          {order.siblings.map((s, idx) => (
+            <React.Fragment key={s._id}>
+              {idx > 0 && ', '}
+              <Link to={`/orders/${s._id}`} className="underline font-medium">{s.shop?.name}</Link>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
         <div className="p-6 border-b border-gray-100">
@@ -49,7 +62,7 @@ export default function OrderDetail() {
             {order.items.map((item, idx) => (
               <div key={idx} className="flex justify-between">
                 <div>
-                  <span className="font-medium">{item.quantity}x</span> {item.menuItem?.name || 'Item'}
+                  <span className="font-medium">{item.quantity}x</span> {item.name}
                 </div>
                 <div className="text-secondary font-medium">₹{item.price * item.quantity}</div>
               </div>
@@ -59,16 +72,21 @@ export default function OrderDetail() {
           <div className="space-y-2 pt-4 border-t border-gray-100">
             <div className="flex justify-between text-gray-500 text-sm">
               <span>Subtotal</span>
-              <span>₹{order.totalAmount - (order.serviceFee || 2)}</span>
+              <span>₹{order.subtotal}</span>
             </div>
             <div className="flex justify-between text-gray-500 text-sm">
               <span>Service Fee</span>
-              <span>₹{order.serviceFee || 2}</span>
+              <span>₹{order.serviceFee}</span>
             </div>
             <div className="flex justify-between font-bold text-secondary text-lg pt-2">
               <span>Total</span>
-              <span className="text-primary">₹{order.totalAmount}</span>
+              <span className="text-primary">₹{order.total}</span>
             </div>
+            {order.serviceFee === 0 && (
+              <p className="text-xs text-gray-400 pt-1">
+                Service fee was already charged on another shop in this same order.
+              </p>
+            )}
           </div>
         </div>
 
@@ -78,13 +96,13 @@ export default function OrderDetail() {
             <div className="flex items-start gap-3">
               <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
               <div>
-                <p className="font-medium text-secondary">{order.deliveryDetails?.hostel}</p>
-                <p className="text-gray-500 text-sm">Room {order.deliveryDetails?.roomNumber}</p>
+                <p className="font-medium text-secondary">{order.user?.hostel || '—'}</p>
+                <p className="text-gray-500 text-sm">Room {order.user?.roomNumber || '—'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="w-5 h-5 text-gray-400" />
-              <p className="text-secondary">{order.deliveryDetails?.phone}</p>
+              <p className="text-secondary">{order.user?.phone || '—'}</p>
             </div>
           </div>
         </div>

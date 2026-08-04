@@ -14,13 +14,6 @@ export const CartProvider = ({ children }) => {
 
   const addItem = (item) => {
     setItems((prev) => {
-      if (prev.length > 0 && prev[0].shopId !== item.shopId) {
-        if (window.confirm('Adding this item will clear your cart from the other shop. Continue?')) {
-          return [{ ...item, quantity: 1 }]
-        }
-        return prev
-      }
-      
       const existing = prev.find(i => i.menuItemId === item._id)
       if (existing) {
         return prev.map(i => i.menuItemId === item._id ? { ...i, quantity: i.quantity + 1 } : i)

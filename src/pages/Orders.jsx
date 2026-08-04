@@ -1,13 +1,25 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useMyOrders } from '../api/queries'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import OrderStatusBadge from '../components/ui/OrderStatusBadge'
 import EmptyState from '../components/ui/EmptyState'
-import { ClipboardList, ChevronRight } from 'lucide-react'
+import { ClipboardList, ChevronRight, Store } from 'lucide-react'
 
 export default function Orders() {
   const { data: orders, isLoading, error } = useMyOrders()
+
+  // Orders placed together (multi-shop checkout) share a groupId — cluster them for display.
+  const groups = useMemo(() => {
+    if (!orders) return []
+    const map = new Map()
+    for (const order of orders) {
+      const key = order.groupId || order._id
+      if (!map.has(key)) map.set(key, [])
+      map.get(key).push(order)
+    }
+    return Array.from(map.values()).sort((a, b) => new Date(b[0].createdAt) - new Date(a[0].createdAt))
+  }, [orders])
 
   if (isLoading) return <LoadingSkeleton type="text" count={5} />
   
@@ -23,31 +35,28 @@ export default function Orders() {
     )
   }
 
-  const activeOrders = orders.filter(o => !['delivered', 'cancelled'].includes(o.status.toLowerCase()))
-  const pastOrders = orders.filter(o => ['delivered', 'cancelled'].includes(o.status.toLowerCase()))
+  const isActive = (group) => group.some(o => !['delivery_initiated', 'cancelled'].includes(o.status.toLowerCase()))
+  const activeGroups = groups.filter(isActive)
+  const pastGroups = groups.filter(g => !isActive(g))
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <h1 className="text-2xl font-bold text-secondary mb-6">Your Orders</h1>
 
-      {activeOrders.length > 0 && (
+      {activeGroups.length > 0 && (
         <section>
           <h2 className="text-lg font-bold text-secondary mb-4">Active Orders</h2>
           <div className="space-y-4">
-            {activeOrders.map(order => (
-              <OrderRow key={order._id} order={order} />
-            ))}
+            {activeGroups.map(group => <OrderGroupCard key={group[0].groupId || group[0]._id} group={group} />)}
           </div>
         </section>
       )}
 
-      {pastOrders.length > 0 && (
+      {pastGroups.length > 0 && (
         <section>
           <h2 className="text-lg font-bold text-secondary mb-4">Past Orders</h2>
           <div className="space-y-4">
-            {pastOrders.map(order => (
-              <OrderRow key={order._id} order={order} />
-            ))}
+            {pastGroups.map(group => <OrderGroupCard key={group[0].groupId || group[0]._id} group={group} />)}
           </div>
         </section>
       )}
@@ -55,23 +64,57 @@ export default function Orders() {
   )
 }
 
-function OrderRow({ order }) {
-  return (
-    <Link 
-      to={`/orders/${order._id}`} 
-      className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:border-primary transition group"
-    >
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <h3 className="font-bold text-secondary">{order.shop?.name || 'Shop'}</h3>
-          <OrderStatusBadge status={order.status} />
+function OrderGroupCard({ group }) {
+  const combinedTotal = group.reduce((sum, o) => sum + o.total, 0)
+  const placedAt = new Date(group[0].createdAt).toLocaleString()
+
+  if (group.length === 1) {
+    const order = group[0]
+    return (
+      <Link 
+        to={`/orders/${order._id}`} 
+        className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:border-primary transition group"
+      >
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <h3 className="font-bold text-secondary">{order.shop?.name || 'Shop'}</h3>
+            <OrderStatusBadge status={order.status} />
+          </div>
+          <p className="text-gray-500 text-sm mb-2">Order #{order._id.slice(-6).toUpperCase()}</p>
+          <p className="font-medium text-secondary">₹{order.total} • {order.items.length} items</p>
         </div>
-        <p className="text-gray-500 text-sm mb-2">Order #{order._id.slice(-6).toUpperCase()}</p>
-        <p className="font-medium text-secondary">₹{order.totalAmount} • {order.items.length} items</p>
+        <div className="text-gray-300 group-hover:text-primary transition">
+          <ChevronRight className="w-6 h-6" />
+        </div>
+      </Link>
+    )
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+          <Store className="w-4 h-4" />
+          {group.length} shops • {placedAt}
+        </div>
+        <span className="font-bold text-secondary">₹{combinedTotal}</span>
       </div>
-      <div className="text-gray-300 group-hover:text-primary transition">
-        <ChevronRight className="w-6 h-6" />
-      </div>
-    </Link>
+      {group.map(order => (
+        <Link
+          key={order._id}
+          to={`/orders/${order._id}`}
+          className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition"
+        >
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <h3 className="font-medium text-secondary">{order.shop?.name || 'Shop'}</h3>
+              <OrderStatusBadge status={order.status} />
+            </div>
+            <p className="text-gray-500 text-sm">{order.items.length} items • ₹{order.total}</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-gray-300" />
+        </Link>
+      ))}
+    </div>
   )
 }

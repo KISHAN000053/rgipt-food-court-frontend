@@ -23,8 +23,16 @@ export default function Home() {
     shop.name.toLowerCase().includes(search.toLowerCase())
   ) || []
 
+  const isUnverifiedDomain = user?.role === 'student' && user?.email && !user.email.toLowerCase().endsWith('@rgipt.ac.in')
+
   return (
     <div className="space-y-8 pb-20">
+      {isUnverifiedDomain && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3">
+          We couldn't verify this account as an official RGIPT email. You can still browse and order — if you run
+          into any access issues, reach out via Support.
+        </div>
+      )}
       <div>
         <h1 className="text-2xl font-bold text-secondary mb-1">
           {getGreeting()}, {user?.name?.split(' ')[0]} 👋

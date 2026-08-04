@@ -29,6 +29,7 @@ export default function Navbar() {
                 <>
                   <Link to="/home" className="text-secondary hover:text-primary transition font-medium">Home</Link>
                   <Link to="/orders" className="text-secondary hover:text-primary transition font-medium">Orders</Link>
+                  <Link to="/support" className="text-secondary hover:text-primary transition font-medium">Support</Link>
                 </>
               )}
             </div>
@@ -64,6 +65,7 @@ export default function Navbar() {
           <div className="md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-4 space-y-1">
             <Link to="/home" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Home</Link>
             <Link to="/orders" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Orders</Link>
+            <Link to="/support" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Support</Link>
             <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Profile</Link>
           </div>
         )}

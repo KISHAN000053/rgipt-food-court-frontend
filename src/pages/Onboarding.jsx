@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import api from '../api/axios'
 
@@ -11,7 +11,9 @@ export default function Onboarding() {
     roomNumber: '',
     phone: ''
   })
+  const [agreeToTerms, setAgreeToTerms] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const hostels = [
     'APJ Abdul Kalam Hostel',
@@ -22,17 +24,22 @@ export default function Onboarding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    if (!agreeToTerms) {
+      setError('Please agree to the Terms, Privacy Policy, and Code of Conduct to continue.')
+      return
+    }
     setLoading(true)
     try {
       await api.patch('/users/profile', {
         ...formData,
+        agreeToTerms,
         isOnboarded: true
       })
       await refetchUser()
       navigate('/home')
-    } catch (error) {
-      console.error(error)
-      alert('Failed to save profile. Please try again.')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save profile. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -81,6 +88,24 @@ export default function Onboarding() {
               required
             />
           </div>
+
+          <div className="flex items-start gap-2 pt-2">
+            <input
+              type="checkbox"
+              id="agreeToTerms"
+              checked={agreeToTerms}
+              onChange={e => setAgreeToTerms(e.target.checked)}
+              className="mt-1"
+            />
+            <label htmlFor="agreeToTerms" className="text-sm text-gray-500">
+              I agree to the{' '}
+              <Link to="/terms" target="_blank" className="text-primary underline">Terms of Service</Link>,{' '}
+              <Link to="/privacy" target="_blank" className="text-primary underline">Privacy Policy</Link>, and{' '}
+              <Link to="/code-of-conduct" target="_blank" className="text-primary underline">Code of Conduct</Link>.
+            </label>
+          </div>
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <button 
             type="submit" 

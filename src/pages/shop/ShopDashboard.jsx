@@ -19,7 +19,8 @@ export default function ShopDashboard() {
     }
   }
 
-  const activeOrders = orders?.filter(o => !['delivered', 'cancelled'].includes(o.status.toLowerCase())) || []
+  // delivery_initiated is the final step in this simplified flow — nothing left for the shop to do after that.
+  const activeOrders = orders?.filter(o => !['delivery_initiated', 'cancelled'].includes(o.status.toLowerCase())) || []
 
   return (
     <div className="space-y-6">
@@ -39,25 +40,39 @@ export default function ShopDashboard() {
             <div className="space-y-2 mb-4">
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between text-sm">
-                  <span>{item.quantity}x {item.menuItem?.name}</span>
+                  <span>{item.quantity}x {item.name}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex gap-2 mt-4 pt-4 border-t border-gray-50">
+            {/* Simple 3-step flow: Accept -> (optional) Preparing -> Delivery Initiated.
+                Shops can skip "Preparing" entirely by going straight to Delivery Initiated. */}
+            <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-gray-50">
               {order.status === 'pending' && (
-                <button onClick={() => handleStatusChange(order._id, 'accepted')} className="flex-1 bg-primary text-white py-2 rounded-lg font-medium hover:bg-orange-600 transition text-sm">Accept</button>
+                <button onClick={() => handleStatusChange(order._id, 'accepted')} className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-orange-600 transition text-sm">
+                  Accept Order
+                </button>
               )}
               {order.status === 'accepted' && (
-                <button onClick={() => handleStatusChange(order._id, 'preparing')} className="flex-1 bg-orange-100 text-orange-700 py-2 rounded-lg font-medium hover:bg-orange-200 transition text-sm">Start Prep</button>
+                <>
+                  <button onClick={() => handleStatusChange(order._id, 'preparing')} className="w-full bg-orange-100 text-orange-700 py-2 rounded-lg font-medium hover:bg-orange-200 transition text-sm">
+                    Start Preparing
+                  </button>
+                  <button onClick={() => handleStatusChange(order._id, 'delivery_initiated')} className="w-full bg-green-100 text-green-700 py-2 rounded-lg font-medium hover:bg-green-200 transition text-sm">
+                    Skip to Delivery Initiated
+                  </button>
+                </>
               )}
               {order.status === 'preparing' && (
-                <button onClick={() => handleStatusChange(order._id, 'ready')} className="flex-1 bg-green-100 text-green-700 py-2 rounded-lg font-medium hover:bg-green-200 transition text-sm">Mark Ready</button>
+                <button onClick={() => handleStatusChange(order._id, 'delivery_initiated')} className="w-full bg-green-100 text-green-700 py-2 rounded-lg font-medium hover:bg-green-200 transition text-sm">
+                  Mark Delivery Initiated
+                </button>
               )}
-              {order.status === 'ready' && (
-                <button onClick={() => handleStatusChange(order._id, 'delivered')} className="flex-1 bg-emerald-100 text-emerald-700 py-2 rounded-lg font-medium hover:bg-emerald-200 transition text-sm">Delivered</button>
+              {order.status !== 'delivery_initiated' && (
+                <button onClick={() => handleStatusChange(order._id, 'cancelled')} className="w-full bg-red-50 text-red-600 py-2 rounded-lg font-medium hover:bg-red-100 transition text-sm">
+                  Cancel Order
+                </button>
               )}
-              <button onClick={() => handleStatusChange(order._id, 'cancelled')} className="flex-1 bg-red-50 text-red-600 py-2 rounded-lg font-medium hover:bg-red-100 transition text-sm">Cancel</button>
             </div>
           </div>
         ))}

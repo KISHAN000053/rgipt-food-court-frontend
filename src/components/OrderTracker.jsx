@@ -6,16 +6,14 @@ export default function OrderTracker({ status }) {
     { id: 'pending', label: 'Placed' },
     { id: 'accepted', label: 'Accepted' },
     { id: 'preparing', label: 'Preparing' },
-    { id: 'ready', label: 'Ready' },
-    { id: 'delivered', label: 'Delivered' }
+    { id: 'delivery_initiated', label: 'Delivery Initiated' }
   ]
 
   const statusMap = {
     pending: 0,
     accepted: 1,
     preparing: 2,
-    ready: 3,
-    delivered: 4,
+    delivery_initiated: 3,
     cancelled: -1
   }
 

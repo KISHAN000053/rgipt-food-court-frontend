@@ -11,7 +11,11 @@ const Cart = React.lazy(() => import('./pages/Cart'))
 const Orders = React.lazy(() => import('./pages/Orders'))
 const OrderDetail = React.lazy(() => import('./pages/OrderDetail'))
 const Profile = React.lazy(() => import('./pages/Profile'))
+const Support = React.lazy(() => import('./pages/Support'))
 const Onboarding = React.lazy(() => import('./pages/Onboarding'))
+const Terms = React.lazy(() => import('./pages/Terms'))
+const Privacy = React.lazy(() => import('./pages/Privacy'))
+const CodeOfConduct = React.lazy(() => import('./pages/CodeOfConduct'))
 const NotFound = React.lazy(() => import('./pages/NotFound'))
 
 const AdminLayout = React.lazy(() => import('./pages/admin/AdminLayout'))
@@ -20,6 +24,8 @@ const AdminShops = React.lazy(() => import('./pages/admin/AdminShops'))
 const AdminMenu = React.lazy(() => import('./pages/admin/AdminMenu'))
 const AdminUsers = React.lazy(() => import('./pages/admin/AdminUsers'))
 const AdminOrders = React.lazy(() => import('./pages/admin/AdminOrders'))
+const AdminSettings = React.lazy(() => import('./pages/admin/AdminSettings'))
+const AdminPayouts = React.lazy(() => import('./pages/admin/AdminPayouts'))
 
 const ShopLayout = React.lazy(() => import('./pages/shop/ShopLayout'))
 const ShopDashboard = React.lazy(() => import('./pages/shop/ShopDashboard'))
@@ -39,7 +45,7 @@ function RequireAdmin({ children }) {
 
 function RequireShopOwner({ children }) {
   const { user } = useAuth()
-  if (user && user.role !== 'owner') return <Navigate to="/home" replace />
+  if (user && user.role !== 'admin' && !user.isShopOwner) return <Navigate to="/home" replace />
   return children
 }
 
@@ -71,6 +77,9 @@ export default function App() {
     <Suspense fallback={<FullPageLoading />}>
       <Routes>
         <Route path="/" element={user ? <Navigate to="/home" replace /> : <Landing />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/code-of-conduct" element={<CodeOfConduct />} />
         
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<LayoutWrapper><Onboarding /></LayoutWrapper>} />
@@ -82,6 +91,7 @@ export default function App() {
             <Route path="/orders" element={<LayoutWrapper><Orders /></LayoutWrapper>} />
             <Route path="/orders/:id" element={<LayoutWrapper><OrderDetail /></LayoutWrapper>} />
             <Route path="/profile" element={<LayoutWrapper><Profile /></LayoutWrapper>} />
+            <Route path="/support" element={<LayoutWrapper><Support /></LayoutWrapper>} />
           </Route>
           
           <Route element={<RequireAdmin><Outlet /></RequireAdmin>}>
@@ -91,6 +101,8 @@ export default function App() {
               <Route path="menu" element={<AdminMenu />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="payouts" element={<AdminPayouts />} />
             </Route>
           </Route>
 
