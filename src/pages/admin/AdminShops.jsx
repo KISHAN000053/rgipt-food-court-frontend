@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useAdminShops, useCreateShop, useUpdateShop } from '../../api/queries'
+import { useAdminShops, useCreateShop, useUpdateShop, useDeleteShop } from '../../api/queries'
 
 const emptyForm = { name: '', description: '', ownerEmail: '', estimatedPrepTime: '', minOrder: '', categories: '' }
 
@@ -7,11 +7,29 @@ export default function AdminShops() {
   const { data: shops } = useAdminShops()
   const createShop = useCreateShop()
   const updateShop = useUpdateShop()
+  const deleteShop = useDeleteShop()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
+
+  const toggleOpen = async (shop) => {
+    try {
+      await updateShop.mutateAsync({ id: shop._id, data: { isOpen: !shop.isOpen } })
+    } catch (err) {
+      alert('Could not update shop status.')
+    }
+  }
+
+  const handleDelete = async (shop) => {
+    if (!window.confirm(`Mark "${shop.name}" as inactive? It will be hidden from students.`)) return
+    try {
+      await deleteShop.mutateAsync(shop._id)
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not delete this shop.')
+    }
+  }
 
   const openAdd = () => {
     setEditingId(null)
@@ -80,7 +98,7 @@ export default function AdminShops() {
         <h1 className="text-xl font-bold text-secondary">Manage Shops</h1>
         <button
           onClick={openAdd}
-          className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition"
+          className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition"
         >
           Add Shop
         </button>
@@ -104,12 +122,20 @@ export default function AdminShops() {
                   {shop.ownerId?.name || shop.ownerEmail || <span className="text-gray-400">Unassigned</span>}
                 </td>
                 <td className="py-4 px-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${shop.isOpen ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                    {shop.isOpen ? 'Open' : 'Closed'}
-                  </span>
+                  {shop.isPermanentlyClosed ? (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Inactive</span>
+                  ) : (
+                    <button
+                      onClick={() => toggleOpen(shop)}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${shop.isOpen ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}
+                    >
+                      {shop.isOpen ? 'Open' : 'Closed'}
+                    </button>
+                  )}
                 </td>
-                <td className="py-4 pl-4 text-right">
+                <td className="py-4 pl-4 text-right space-x-3">
                   <button onClick={() => openEdit(shop)} className="text-primary hover:underline font-medium text-sm">Edit</button>
+                  <button onClick={() => handleDelete(shop)} className="text-red-500 hover:underline font-medium text-sm">Delete</button>
                 </td>
               </tr>
             ))}
@@ -198,7 +224,7 @@ export default function AdminShops() {
                 <button type="button" onClick={closeModal} className="px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition">
                   Cancel
                 </button>
-                <button type="submit" disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition disabled:opacity-50">
+                <button type="submit" disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition disabled:opacity-50">
                   {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Shop'}
                 </button>
               </div>

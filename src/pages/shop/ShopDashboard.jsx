@@ -49,7 +49,7 @@ export default function ShopDashboard() {
                 Shops can skip "Preparing" entirely by going straight to Delivery Initiated. */}
             <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-gray-50">
               {order.status === 'pending' && (
-                <button onClick={() => handleStatusChange(order._id, 'accepted')} className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-orange-600 transition text-sm">
+                <button onClick={() => handleStatusChange(order._id, 'accepted')} className="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary-deep transition text-sm">
                   Accept Order
                 </button>
               )}

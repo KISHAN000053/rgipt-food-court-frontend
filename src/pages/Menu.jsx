@@ -25,20 +25,26 @@ export default function Menu() {
     { id: 'non-veg', label: 'Non-Veg Only' }
   ]
 
-  const categories = useMemo(() => {
+  // The menu API returns items grouped by category, e.g. { Snacks: [...], Drinks: [...] }.
+  // Flatten to a single array for filtering, and derive category list from that.
+  const flatItems = useMemo(() => {
     if (!items) return []
-    const cats = new Set(items.map(item => item.category))
-    return Array.from(cats)
+    if (Array.isArray(items)) return items
+    return Object.values(items).flat()
   }, [items])
 
   const filteredItems = useMemo(() => {
-    if (!items) return []
-    return items.filter(item => {
+    return flatItems.filter(item => {
       if (activeFilter === 'veg' && !item.isVeg) return false
       if (activeFilter === 'non-veg' && item.isVeg) return false
       return true
     })
-  }, [items, activeFilter])
+  }, [flatItems, activeFilter])
+
+  const categories = useMemo(() => {
+    const cats = new Set(filteredItems.map(item => item.category))
+    return Array.from(cats)
+  }, [filteredItems])
 
   if (shopsLoading) return <LoadingSkeleton type="shop" count={1} />
   
@@ -105,7 +111,7 @@ export default function Menu() {
           >
             <div className="flex flex-col text-left leading-tight">
               <span>{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>
-              <span className="text-xs text-orange-200">View Cart</span>
+              <span className="text-xs text-white/70">View Cart</span>
             </div>
             <span className="text-lg">₹{total}</span>
           </button>

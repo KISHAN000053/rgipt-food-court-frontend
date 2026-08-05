@@ -79,3 +79,44 @@ export const useUpdateShop = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'shops'] })
   })
 }
+
+export const useDeleteShop = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => api.delete(`/admin/shops/${id}`).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'shops'] })
+  })
+}
+
+// Admin menu management (per shop)
+export const useAdminShopMenu = (shopId) => useQuery({
+  queryKey: ['admin', 'menu', shopId],
+  queryFn: () => api.get(`/admin/menu/${shopId}`).then(r => r.data),
+  enabled: !!shopId
+})
+
+const invalidateAdminMenu = (queryClient, shopId) => queryClient.invalidateQueries({ queryKey: ['admin', 'menu', shopId] })
+
+export const useAdminCreateMenuItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.post('/admin/menu', data).then(r => r.data),
+    onSuccess: (_, vars) => invalidateAdminMenu(queryClient, vars.shop)
+  })
+}
+
+export const useAdminUpdateMenuItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => api.patch(`/admin/menu/${id}`, data).then(r => r.data),
+    onSuccess: (item) => invalidateAdminMenu(queryClient, item.shop)
+  })
+}
+
+export const useAdminDeleteMenuItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id }) => api.delete(`/admin/menu/${id}`).then(r => r.data),
+    onSuccess: (_, vars) => invalidateAdminMenu(queryClient, vars.shopId)
+  })
+}

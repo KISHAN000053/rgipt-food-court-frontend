@@ -1,82 +1,78 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Flame, Clock, Truck, ShieldCheck } from 'lucide-react'
+import { Clock, MapPin, Moon } from 'lucide-react'
 import { usePublicSettings } from '../api/queries'
 
 export default function Landing() {
   const { data: settings } = usePublicSettings()
+  const loginUrl = `${import.meta.env.VITE_API_URL}/api/auth/google`
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center text-center p-6">
-      <div className="max-w-2xl w-full">
-        <Flame className="w-20 h-20 text-primary mx-auto mb-6" />
-        <h1 className="text-5xl font-bold text-secondary mb-4 tracking-tight">RGIPT Food Court</h1>
-        <p className="text-xl text-gray-500 mb-6">Fresh. Fast. Campus-delivered.</p>
+    <div className="min-h-screen bg-secondary text-canvas flex flex-col relative overflow-hidden">
+      {/* Warm ambient glow, like a canteen light at night */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px]" />
 
-        {settings && (
-          <p className="text-xs text-gray-400 max-w-md mx-auto mb-4">
-            Menu prices include a {settings.razorpaySurchargePercent}% payment processing charge.
-            A flat ₹{settings.serviceFee} service fee applies per order.
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 relative z-10">
+        <div className="max-w-2xl w-full">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-canvas/80 text-xs font-medium mb-8 backdrop-blur-sm">
+            <Moon className="w-3.5 h-3.5" />
+            Open when the campus gates aren't
+          </div>
+
+          <h1 className="font-display text-6xl sm:text-7xl font-extrabold leading-[0.95] mb-5">
+            Hungry at<br />
+            <span className="text-primary">the hostel?</span>
+          </h1>
+          <p className="text-lg text-canvas/70 mb-10 max-w-md mx-auto">
+            Order from every campus shop in one place — delivered straight to your room.
           </p>
-        )}
-        
-        <button 
-          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`}
-          className="bg-primary text-white text-lg font-bold py-4 px-10 rounded-full shadow-lg hover:bg-orange-600 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 mb-4"
-        >
-          Student Login
-        </button>
-        <p className="text-xs text-gray-400 mb-16">
-          For RGIPT students. Non-RGIPT emails can still sign in but may see a verification notice.
-        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="flex flex-col items-center p-4">
-            <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-primary mb-4">
-              <Clock className="w-6 h-6" />
-            </div>
-            <h3 className="font-semibold text-secondary mb-2">Fast Prep</h3>
-            <p className="text-sm text-gray-500">Know exactly when your food will be ready with live tracking.</p>
-          </div>
-          <div className="flex flex-col items-center p-4">
-            <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-primary mb-4">
-              <Truck className="w-6 h-6" />
-            </div>
-            <h3 className="font-semibold text-secondary mb-2">Hostel Delivery</h3>
-            <p className="text-sm text-gray-500">Delivered directly to your hostel room for maximum convenience.</p>
-          </div>
-          <div className="flex flex-col items-center p-4">
-            <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-primary mb-4">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="font-semibold text-secondary mb-2">Secure Payments</h3>
-            <p className="text-sm text-gray-500">Pay securely via UPI or choose cash on delivery.</p>
-          </div>
-        </div>
-      </div>
+          <button
+            onClick={() => window.location.href = loginUrl}
+            className="bg-primary text-white text-lg font-semibold py-4 px-10 rounded-full shadow-lg shadow-primary/30 hover:bg-primary-deep hover:-translate-y-0.5 transition-all duration-200"
+          >
+            Continue with Google
+          </button>
+          <p className="text-xs text-canvas/40 mt-4 max-w-xs mx-auto">
+            For RGIPT students. Other emails can still sign in.
+          </p>
 
-      <div className="mt-16 pt-6 border-t border-gray-100 w-full max-w-md flex flex-col items-center gap-3">
-        <div className="flex gap-6 text-xs text-gray-400">
-          <button
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`}
-            className="hover:text-primary hover:underline"
-          >
-            Shop Owner Login
-          </button>
-          <span>·</span>
-          <button
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`}
-            className="hover:text-primary hover:underline"
-          >
-            Admin Login
-          </button>
+          {settings && (
+            <p className="text-xs text-canvas/40 max-w-md mx-auto mt-8">
+              Prices include a {settings.razorpaySurchargePercent}% payment processing charge ·
+              ₹{settings.serviceFee} service fee per order
+            </p>
+          )}
         </div>
-        <div className="flex gap-4 text-xs text-gray-300">
-          <Link to="/terms" className="hover:text-gray-500">Terms</Link>
-          <Link to="/privacy" className="hover:text-gray-500">Privacy</Link>
-          <Link to="/code-of-conduct" className="hover:text-gray-500">Code of Conduct</Link>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16 max-w-3xl w-full">
+          {[
+            { icon: MapPin, title: 'To your room', body: 'Delivered to your hostel, not a pickup counter.' },
+            { icon: Clock, title: 'Live tracking', body: 'Watch it go from accepted to on-its-way.' },
+            { icon: Moon, title: 'After-hours', body: 'Built for the nights you can\'t leave campus.' },
+          ].map(({ icon: Icon, title, body }) => (
+            <div key={title} className="rounded-xl bg-white/5 border border-white/10 p-5 text-left backdrop-blur-sm">
+              <Icon className="w-5 h-5 text-primary mb-3" />
+              <h3 className="font-display font-bold text-canvas mb-1">{title}</h3>
+              <p className="text-sm text-canvas/60">{body}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </main>
+
+      <footer className="relative z-10 pb-8 pt-6 flex flex-col items-center gap-3">
+        <div className="flex gap-6 text-xs text-canvas/50">
+          <button onClick={() => window.location.href = loginUrl} className="hover:text-primary transition">Shop Owner Login</button>
+          <span className="text-canvas/20">·</span>
+          <button onClick={() => window.location.href = loginUrl} className="hover:text-primary transition">Admin Login</button>
+        </div>
+        <div className="flex gap-4 text-xs text-canvas/30">
+          <Link to="/terms" className="hover:text-canvas/60 transition">Terms</Link>
+          <Link to="/privacy" className="hover:text-canvas/60 transition">Privacy</Link>
+          <Link to="/code-of-conduct" className="hover:text-canvas/60 transition">Code of Conduct</Link>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -128,7 +128,7 @@ export default function CartDrawer({ onClose }) {
             {!checkoutMode ? (
               <button
                 onClick={() => setCheckoutMode(true)}
-                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-orange-600 transition shadow-sm"
+                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm"
               >
                 Checkout (₹{grandTotal})
               </button>
@@ -136,7 +136,7 @@ export default function CartDrawer({ onClose }) {
               <button
                 onClick={handlePlaceOrder}
                 disabled={placeOrder.isPending}
-                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-orange-600 transition shadow-sm disabled:opacity-50"
+                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm disabled:opacity-50"
               >
                 {placeOrder.isPending ? 'Placing Order...' : 'Place Order'}
               </button>

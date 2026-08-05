@@ -18,7 +18,7 @@ export default function UPIPayment({ amount, onPaymentConfirm }) {
 
       <button 
         onClick={onPaymentConfirm}
-        className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-orange-600 transition shadow-sm"
+        className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm"
       >
         I Have Paid
       </button>

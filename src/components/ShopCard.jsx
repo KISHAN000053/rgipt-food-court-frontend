@@ -20,7 +20,7 @@ export default function ShopCard({ shop }) {
         <div className="mt-auto">
           <Link
             to={`/shops/${shop._id}/menu`}
-            className="block w-full bg-primary text-white text-center py-2.5 rounded-lg font-medium hover:bg-orange-600 transition"
+            className="block w-full bg-primary text-white text-center py-2.5 rounded-lg font-medium hover:bg-primary-deep transition"
             onClick={(e) => {
               if (!shop.isOpen) e.preventDefault()
             }}

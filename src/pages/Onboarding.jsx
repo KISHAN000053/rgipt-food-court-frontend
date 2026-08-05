@@ -110,7 +110,7 @@ export default function Onboarding() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition disabled:opacity-50 mt-4"
+            className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-deep transition disabled:opacity-50 mt-4"
           >
             {loading ? 'Saving...' : 'Save & Continue'}
           </button>

@@ -4,8 +4,11 @@
 
 @layer base {
   body {
-    @apply bg-white text-secondary font-sans antialiased;
+    @apply bg-canvas text-secondary font-sans antialiased;
     scroll-behavior: smooth;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
   }
 }
 

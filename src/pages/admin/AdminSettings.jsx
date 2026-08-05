@@ -80,7 +80,7 @@ export default function AdminSettings() {
         <button
           type="submit"
           disabled={updateSettings.isPending}
-          className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition disabled:opacity-50"
+          className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition disabled:opacity-50"
         >
           {updateSettings.isPending ? 'Saving...' : 'Save Changes'}
         </button>

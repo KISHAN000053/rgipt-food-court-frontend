@@ -84,7 +84,7 @@ export default function ShopMenu() {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-xl font-bold text-secondary">My Menu</h1>
-        <button onClick={openAdd} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition">
+        <button onClick={openAdd} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition">
           Add Item
         </button>
       </div>
@@ -188,7 +188,7 @@ export default function ShopMenu() {
 
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition">Cancel</button>
-                <button type="submit" disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition disabled:opacity-50">
+                <button type="submit" disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition disabled:opacity-50">
                   {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Add Item'}
                 </button>
               </div>
