@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAdminHostels, useCreateHostel, useUpdateHostel, useDeleteHostel } from '../../api/queries'
 
-const emptyForm = { name: '', roomPrefix: '', roomDigits: 3, isActive: true }
+const emptyForm = { name: '', isActive: true }
 
 export default function AdminHostels() {
   const { data: hostels } = useAdminHostels()
@@ -17,7 +17,7 @@ export default function AdminHostels() {
   const openAdd = () => { setEditingId(null); setForm(emptyForm); setError(''); setModalOpen(true) }
   const openEdit = (h) => {
     setEditingId(h._id)
-    setForm({ name: h.name || '', roomPrefix: h.roomPrefix || '', roomDigits: h.roomDigits ?? 3, isActive: h.isActive ?? true })
+    setForm({ name: h.name || '', isActive: h.isActive ?? true })
     setError(''); setModalOpen(true)
   }
 
@@ -25,15 +25,8 @@ export default function AdminHostels() {
     e.preventDefault()
     setError('')
     if (!form.name.trim()) return setError('Hostel name is required.')
-    const digits = Number(form.roomDigits)
-    if (digits < 1 || digits > 6) return setError('Room digits must be between 1 and 6.')
 
-    const payload = {
-      name: form.name.trim(),
-      roomPrefix: form.roomPrefix.trim(),
-      roomDigits: digits,
-      isActive: form.isActive,
-    }
+    const payload = { name: form.name.trim(), isActive: form.isActive }
     try {
       if (editingId) await updateHostel.mutateAsync({ id: editingId, data: payload })
       else await createHostel.mutateAsync(payload)
@@ -52,32 +45,22 @@ export default function AdminHostels() {
     }
   }
 
-  const example = (h) => {
-    const digits = '0'.repeat(Number(h.roomDigits || 3)).replace(/0/g, 'x')
-    return h.roomPrefix ? `${h.roomPrefix}-${digits}` : digits
-  }
-
   const saving = createHostel.isPending || updateHostel.isPending
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold text-secondary">Manage Hostels</h1>
         <button onClick={openAdd} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition">
           Add Hostel
         </button>
       </div>
-      <p className="text-sm text-gray-500 mb-6">
-        Set each hostel's room format. The prefix is fixed and students only type the number
-        (e.g. prefix "g" + 3 digits means students enter 902, saved as g-902).
-      </p>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="text-left text-sm font-medium text-gray-500 border-b border-gray-100">
               <th className="pb-3 pr-4">Hostel</th>
-              <th className="pb-3 px-4">Room Format</th>
               <th className="pb-3 px-4">Status</th>
               <th className="pb-3 pl-4 text-right">Actions</th>
             </tr>
@@ -86,7 +69,6 @@ export default function AdminHostels() {
             {hostels?.map(h => (
               <tr key={h._id} className="border-b border-gray-50 last:border-0">
                 <td className="py-4 pr-4 font-medium text-secondary">{h.name}</td>
-                <td className="py-4 px-4 font-mono text-gray-600">{example(h)}</td>
                 <td className="py-4 px-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${h.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                     {h.isActive ? 'Active' : 'Hidden'}
@@ -99,7 +81,7 @@ export default function AdminHostels() {
               </tr>
             ))}
             {hostels?.length === 0 && (
-              <tr><td colSpan={4} className="py-8 text-center text-gray-400">No hostels yet. Click "Add Hostel" to create one.</td></tr>
+              <tr><td colSpan={3} className="py-8 text-center text-gray-400">No hostels yet. Click "Add Hostel" to create one.</td></tr>
             )}
           </tbody>
         </table>
@@ -115,28 +97,6 @@ export default function AdminHostels() {
                 <label className="block text-sm font-medium text-gray-600 mb-1">Hostel Name *</label>
                 <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Room Prefix</label>
-                  <input type="text" value={form.roomPrefix} onChange={e => setForm({ ...form, roomPrefix: e.target.value })}
-                    placeholder="e.g. g" maxLength={4}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-                  <p className="text-xs text-gray-400 mt-1">Leave blank for no prefix.</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Room Digits *</label>
-                  <select value={form.roomDigits} onChange={e => setForm({ ...form, roomDigits: Number(e.target.value) })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option value={3}>3 digits</option>
-                    <option value={4}>4 digits</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-600">
-                Students will enter: <span className="font-mono font-medium">{example(form)}</span>
               </div>
 
               <label className="flex items-center gap-2 text-sm text-gray-600">

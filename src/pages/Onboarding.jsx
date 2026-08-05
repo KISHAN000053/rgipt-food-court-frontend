@@ -22,8 +22,6 @@ export default function Onboarding() {
   }, [hostels, hostelId])
 
   const selectedHostel = hostels?.find(h => h._id === hostelId)
-  // Room number can be 3 or 4 digits (any hostel)
-  const prefix = selectedHostel?.roomPrefix || ''
 
   // Reset room digits when hostel changes (rules differ).
   useEffect(() => { setRoomDigits('') }, [hostelId])
@@ -48,7 +46,7 @@ export default function Onboarding() {
       return setError('Please agree to the Terms, Privacy Policy, and Code of Conduct to continue.')
     }
 
-    const roomNumber = prefix ? `${prefix}-${roomDigits}` : roomDigits
+    const roomNumber = roomDigits
 
     setLoading(true)
     try {
@@ -94,11 +92,6 @@ export default function Onboarding() {
           <div>
             <label className="block text-sm font-medium text-secondary mb-1">Room Number</label>
             <div className="flex items-center border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-primary overflow-hidden">
-              {prefix && (
-                <span className="px-3 py-3 bg-gray-50 text-gray-500 font-mono border-r border-gray-200 select-none">
-                  {prefix}-
-                </span>
-              )}
               <input
                 type="text"
                 inputMode="numeric"

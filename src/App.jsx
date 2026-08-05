@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import Navbar from './components/layout/Navbar'
 import ProtectedRoute from './components/layout/ProtectedRoute'
+import ThemeToggle from './components/ThemeToggle'
 
 const Landing = React.lazy(() => import('./pages/Landing'))
 const Home = React.lazy(() => import('./pages/Home'))
@@ -75,11 +76,12 @@ export default function App() {
   }, [])
 
   return (
-    <Suspense fallback={<FullPageLoading />}>
-      <Routes>
-        <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/home'} replace /> : <Landing />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
+    <>
+      <Suspense fallback={<FullPageLoading />}>
+        <Routes>
+          <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/home'} replace /> : <Landing />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
         <Route path="/code-of-conduct" element={<CodeOfConduct />} />
         
         <Route element={<ProtectedRoute />}>
@@ -118,6 +120,8 @@ export default function App() {
         
         <Route path="*" element={<LayoutWrapper><NotFound /></LayoutWrapper>} />
       </Routes>
-    </Suspense>
+      </Suspense>
+      <ThemeToggle />
+    </>
   )
 }

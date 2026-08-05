@@ -1,10 +1,12 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Clock, MapPin, Moon } from 'lucide-react'
 import { usePublicSettings } from '../api/queries'
 
 export default function Landing() {
   const { data: settings } = usePublicSettings()
+  const [searchParams] = useSearchParams()
+  const loginError = searchParams.get('loginError')
   const loginUrl = `${import.meta.env.VITE_API_URL}/api/auth/google`
 
   return (
@@ -15,6 +17,11 @@ export default function Landing() {
 
       <main className="flex-1 flex flex-col items-center justify-center text-center px-6 relative z-10">
         <div className="max-w-2xl w-full">
+          {loginError && (
+            <div className="bg-red-500/10 border border-red-500/30 text-red-200 text-sm rounded-lg px-4 py-3 mb-6 max-w-md mx-auto">
+              {loginError}
+            </div>
+          )}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-canvas/80 text-xs font-medium mb-8 backdrop-blur-sm">
             <Moon className="w-3.5 h-3.5" />
             Open when the campus gates aren't

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAdminShops, useCreateShop, useUpdateShop, useDeleteShop } from '../../api/queries'
 
-const emptyForm = { name: '', description: '', ownerEmail: '', estimatedPrepTime: '', minOrder: '', categories: '' }
+const emptyForm = { name: '', description: '', ownerEmail: '', categories: '' }
 
 export default function AdminShops() {
   const { data: shops } = useAdminShops()
@@ -44,8 +44,6 @@ export default function AdminShops() {
       name: shop.name || '',
       description: shop.description || '',
       ownerEmail: shop.ownerEmail || '',
-      estimatedPrepTime: shop.estimatedPrepTime ?? '',
-      minOrder: shop.minOrder ?? '',
       categories: (shop.categories || []).join(', '),
     })
     setError('')
@@ -71,8 +69,6 @@ export default function AdminShops() {
       name: form.name.trim(),
       description: form.description.trim(),
       ownerEmail: form.ownerEmail.trim(),
-      estimatedPrepTime: form.estimatedPrepTime === '' ? undefined : Number(form.estimatedPrepTime),
-      minOrder: form.minOrder === '' ? undefined : Number(form.minOrder),
       categories: form.categories
         ? form.categories.split(',').map(c => c.trim()).filter(Boolean)
         : [],
@@ -182,29 +178,6 @@ export default function AdminShops() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <p className="text-xs text-gray-400 mt-1">Only this email can access the shop owner dashboard for this shop. Leave blank to unassign.</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Prep Time (min)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.estimatedPrepTime}
-                    onChange={e => setForm({ ...form, estimatedPrepTime: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Min Order (₹)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.minOrder}
-                    onChange={e => setForm({ ...form, minOrder: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
               </div>
 
               <div>

@@ -1,12 +1,10 @@
 import React, { useState } from 'react'
 import { useOwnerMenu, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem } from '../../api/queries'
-import { usePublicSettings } from '../../api/queries'
 
-const emptyForm = { name: '', price: '', category: '', description: '', isVeg: true, isAvailable: true }
+const emptyForm = { name: '', price: '', category: '', isVeg: true, isAvailable: true }
 
 export default function ShopMenu() {
   const { data: menuItems } = useOwnerMenu()
-  const { data: settings } = usePublicSettings()
   const createItem = useCreateMenuItem()
   const updateItem = useUpdateMenuItem()
   const deleteItem = useDeleteMenuItem()
@@ -15,8 +13,6 @@ export default function ShopMenu() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
-
-  const surcharge = settings?.razorpaySurchargePercent ?? 0
 
   const openAdd = () => {
     setEditingId(null); setForm(emptyForm); setError(''); setModalOpen(true)
@@ -28,7 +24,6 @@ export default function ShopMenu() {
       name: item.name || '',
       price: item.price ?? '',
       category: item.category || '',
-      description: item.description || '',
       isVeg: item.isVeg ?? true,
       isAvailable: item.isAvailable ?? true,
     })
@@ -47,7 +42,6 @@ export default function ShopMenu() {
       name: form.name.trim(),
       price: Number(form.price),
       category: form.category.trim(),
-      description: form.description.trim(),
       isVeg: form.isVeg,
       isAvailable: form.isAvailable,
     }
@@ -89,8 +83,8 @@ export default function ShopMenu() {
         </button>
       </div>
       <p className="text-sm text-gray-500 mb-6">
-        Set your own price here — this is what you get paid. Students see a slightly higher price
-        (+{surcharge}%) which covers payment processing; that difference does not come out of your earnings.
+        Set your own price here — this is exactly what students see and what you get paid.
+        Platform fees are added separately at checkout and don't come out of your earnings.
       </p>
 
       <div className="overflow-x-auto">
@@ -153,11 +147,6 @@ export default function ShopMenu() {
                   <label className="block text-sm font-medium text-gray-600 mb-1">Your Price (₹) *</label>
                   <input type="number" min="0" step="1" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-                  {form.price !== '' && Number(form.price) >= 0 && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      Student sees ₹{(Number(form.price) * (1 + surcharge / 100)).toFixed(2)}
-                    </p>
-                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">Category *</label>
@@ -165,12 +154,6 @@ export default function ShopMenu() {
                     placeholder="e.g. Snacks"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Description</label>
-                <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
 
               <div className="flex gap-6">

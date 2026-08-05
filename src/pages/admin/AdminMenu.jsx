@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { useAdminShops, useAdminShopMenu, useAdminCreateMenuItem, useAdminUpdateMenuItem, useAdminDeleteMenuItem, usePublicSettings } from '../../api/queries'
+import { useAdminShops, useAdminShopMenu, useAdminCreateMenuItem, useAdminUpdateMenuItem, useAdminDeleteMenuItem } from '../../api/queries'
 
-const emptyForm = { name: '', price: '', category: '', description: '', isVeg: true, isAvailable: true }
+const emptyForm = { name: '', price: '', category: '', isVeg: true, isAvailable: true }
 
 export default function AdminMenu() {
   const { data: shops } = useAdminShops()
-  const { data: settings } = usePublicSettings()
   const [selectedShop, setSelectedShop] = useState('')
 
   useEffect(() => {
@@ -22,7 +21,6 @@ export default function AdminMenu() {
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
 
-  const surcharge = settings?.razorpaySurchargePercent ?? 0
   const shopName = shops?.find(s => s._id === selectedShop)?.name || ''
 
   const openAdd = () => { setEditingId(null); setForm(emptyForm); setError(''); setModalOpen(true) }
@@ -30,7 +28,7 @@ export default function AdminMenu() {
     setEditingId(item._id)
     setForm({
       name: item.name || '', price: item.price ?? '', category: item.category || '',
-      description: item.description || '', isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
+      isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
     })
     setError(''); setModalOpen(true)
   }
@@ -44,7 +42,7 @@ export default function AdminMenu() {
 
     const payload = {
       name: form.name.trim(), price: Number(form.price), category: form.category.trim(),
-      description: form.description.trim(), isVeg: form.isVeg, isAvailable: form.isAvailable,
+      isVeg: form.isVeg, isAvailable: form.isAvailable,
     }
 
     try {
@@ -90,8 +88,7 @@ export default function AdminMenu() {
           <thead>
             <tr className="text-left text-sm font-medium text-gray-500 border-b border-gray-100">
               <th className="pb-3 pr-4">Item Name</th>
-              <th className="pb-3 px-4">Base Price</th>
-              <th className="pb-3 px-4">Student Sees</th>
+              <th className="pb-3 px-4">Price</th>
               <th className="pb-3 px-4">Category</th>
               <th className="pb-3 pl-4 text-right">Actions</th>
             </tr>
@@ -106,7 +103,6 @@ export default function AdminMenu() {
                   </div>
                 </td>
                 <td className="py-4 px-4 font-medium">₹{item.price}</td>
-                <td className="py-4 px-4 text-gray-500">₹{(item.price * (1 + surcharge / 100)).toFixed(2)}</td>
                 <td className="py-4 px-4 text-gray-600 capitalize">{item.category}</td>
                 <td className="py-4 pl-4 text-right space-x-3">
                   <button onClick={() => openEdit(item)} className="text-primary hover:underline font-medium text-sm">Edit</button>
@@ -115,7 +111,7 @@ export default function AdminMenu() {
               </tr>
             ))}
             {menuItems?.length === 0 && (
-              <tr><td colSpan={5} className="py-8 text-center text-gray-400">No items in {shopName}. Click "Add Item" to create one.</td></tr>
+              <tr><td colSpan={4} className="py-8 text-center text-gray-400">No items in {shopName}. Click "Add Item" to create one.</td></tr>
             )}
           </tbody>
         </table>
@@ -144,11 +140,6 @@ export default function AdminMenu() {
                   <input type="text" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="e.g. Snacks"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Description</label>
-                <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
               <div className="flex gap-6">
                 <label className="flex items-center gap-2 text-sm text-gray-600">

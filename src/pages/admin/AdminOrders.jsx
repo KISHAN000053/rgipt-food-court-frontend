@@ -1,13 +1,37 @@
-import React from 'react'
+import React, { useState, useMemo } from 'react'
 import { useAdminOrders } from '../../api/queries'
 import OrderStatusBadge from '../../components/ui/OrderStatusBadge'
+import { Search } from 'lucide-react'
 
 export default function AdminOrders() {
   const { data: orders } = useAdminOrders()
+  const [search, setSearch] = useState('')
+
+  const filteredOrders = useMemo(() => {
+    if (!orders) return []
+    const q = search.trim().toLowerCase()
+    if (!q) return orders
+    return orders.filter(order =>
+      order._id.toLowerCase().includes(q) ||
+      order.orderNumber?.toLowerCase().includes(q)
+    )
+  }, [orders, search])
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h1 className="text-xl font-bold text-secondary mb-6">All Orders</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+        <h1 className="text-xl font-bold text-secondary">All Orders</h1>
+        <div className="relative w-full sm:w-64">
+          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by order ID..."
+            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -21,7 +45,7 @@ export default function AdminOrders() {
             </tr>
           </thead>
           <tbody>
-            {orders?.map(order => (
+            {filteredOrders.map(order => (
               <tr key={order._id} className="border-b border-gray-50 last:border-0">
                 <td className="py-4 pr-4 text-sm font-mono">{order._id.slice(-6).toUpperCase()}</td>
                 <td className="py-4 px-4 font-medium text-secondary">{order.user?.name}</td>
@@ -31,8 +55,8 @@ export default function AdminOrders() {
                 <td className="py-4 pl-4"><OrderStatusBadge status={order.status} orderType={order.orderType} /></td>
               </tr>
             ))}
-            {orders?.length === 0 && (
-              <tr><td colSpan={6} className="py-8 text-center text-gray-400">No orders yet.</td></tr>
+            {filteredOrders.length === 0 && (
+              <tr><td colSpan={6} className="py-8 text-center text-gray-400">{search ? 'No orders match your search.' : 'No orders yet.'}</td></tr>
             )}
           </tbody>
         </table>

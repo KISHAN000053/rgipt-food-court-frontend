@@ -6,10 +6,48 @@
   body {
     @apply bg-canvas text-secondary font-sans antialiased;
     scroll-behavior: smooth;
+    transition: background-color 0.15s ease;
   }
   h1, h2, h3 {
     @apply font-display tracking-tight;
   }
+}
+
+/* Dark mode: overrides the actual Tailwind utility classes used throughout the app,
+   so most components don't need individual dark: variants added everywhere. */
+html.dark body {
+  background-color: #16120f;
+}
+html.dark .bg-white {
+  background-color: #221c18 !important;
+}
+html.dark .bg-gray-50 {
+  background-color: #2b2420 !important;
+}
+html.dark .bg-gray-100 {
+  background-color: #362e28 !important;
+}
+html.dark .text-secondary {
+  color: #f3ece3 !important;
+}
+html.dark .text-gray-500,
+html.dark .text-gray-600 {
+  color: #b8ac9f !important;
+}
+html.dark .text-gray-400 {
+  color: #8f8478 !important;
+}
+html.dark .border-gray-50,
+html.dark .border-gray-100,
+html.dark .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html.dark .shadow-sm,
+html.dark .shadow-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background-color: #4a4038;
 }
 
 /* Custom Scrollbar */
