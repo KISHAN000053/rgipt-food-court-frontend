@@ -78,6 +78,12 @@ export default function OrderDetail() {
               <span>Service Fee</span>
               <span>₹{order.serviceFee}</span>
             </div>
+            {order.processingFee > 0 && (
+              <div className="flex justify-between text-gray-500 text-sm">
+                <span>Processing Fee</span>
+                <span>₹{order.processingFee.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-bold text-secondary text-lg pt-2">
               <span>Total</span>
               <span className="text-primary">₹{order.total}</span>

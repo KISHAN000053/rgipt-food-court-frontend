@@ -14,7 +14,9 @@ export default function CartDrawer({ onClose }) {
   const navigate = useNavigate()
 
   const serviceFee = settings?.serviceFee ?? 2
-  const grandTotal = total + (items.length > 0 ? serviceFee : 0)
+  const surchargePercent = settings?.razorpaySurchargePercent ?? 2
+  const processingFee = items.length > 0 ? Math.round(total * (surchargePercent / 100) * 100) / 100 : 0
+  const grandTotal = Math.round((total + (items.length > 0 ? serviceFee : 0) + processingFee) * 100) / 100
 
   const [checkoutMode, setCheckoutMode] = useState(false)
   const [orderType, setOrderType] = useState('hostel')
@@ -154,9 +156,13 @@ export default function CartDrawer({ onClose }) {
                   <span>Service Fee</span>
                   <span>₹{serviceFee}</span>
                 </div>
+                <div className="flex justify-between text-gray-500 text-sm">
+                  <span>Processing ({surchargePercent}%)</span>
+                  <span>₹{processingFee.toFixed(2)}</span>
+                </div>
                 <div className="pt-2 border-t border-gray-100 flex justify-between font-bold text-secondary">
                   <span>Grand Total</span>
-                  <span>₹{grandTotal}</span>
+                  <span>₹{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -172,7 +178,7 @@ export default function CartDrawer({ onClose }) {
                 onClick={() => setCheckoutMode(true)}
                 className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm"
               >
-                Checkout (₹{grandTotal})
+                Checkout (₹{grandTotal.toFixed(2)})
               </button>
             ) : (
               <button

@@ -22,14 +22,14 @@ export default function Onboarding() {
   }, [hostels, hostelId])
 
   const selectedHostel = hostels?.find(h => h._id === hostelId)
-  const maxDigits = selectedHostel?.roomDigits ?? 3
+  // Room number can be 3 or 4 digits (any hostel)
   const prefix = selectedHostel?.roomPrefix || ''
 
   // Reset room digits when hostel changes (rules differ).
   useEffect(() => { setRoomDigits('') }, [hostelId])
 
   const handleRoomChange = (e) => {
-    const onlyNums = e.target.value.replace(/[^0-9]/g, '').slice(0, maxDigits)
+    const onlyNums = e.target.value.replace(/[^0-9]/g, '').slice(0, 4)
     setRoomDigits(onlyNums)
   }
 
@@ -38,8 +38,8 @@ export default function Onboarding() {
     setError('')
 
     if (!selectedHostel) return setError('Please select your hostel.')
-    if (roomDigits.length !== maxDigits) {
-      return setError(`Room number must be exactly ${maxDigits} digits.`)
+    if (roomDigits.length < 3 || roomDigits.length > 4) {
+      return setError('Room number must be 3 or 4 digits.')
     }
     if (!/^[0-9]{10}$/.test(phone)) {
       return setError('Enter a valid 10-digit mobile number.')
@@ -104,12 +104,12 @@ export default function Onboarding() {
                 inputMode="numeric"
                 value={roomDigits}
                 onChange={handleRoomChange}
-                placeholder={'0'.repeat(maxDigits)}
+                placeholder="e.g. 902 or 1204"
                 className="flex-1 p-3 outline-none font-mono"
                 required
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">Enter {maxDigits} digits only.</p>
+            <p className="text-xs text-gray-400 mt-1">Enter 3 or 4 digits.</p>
           </div>
 
           <div>

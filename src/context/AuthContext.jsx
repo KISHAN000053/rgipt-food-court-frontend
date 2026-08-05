@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react'
-import api from '../api/axios'
+import api, { captureTokenFromUrl, clearToken } from '../api/axios'
 
 export const AuthContext = createContext()
 
@@ -19,6 +19,8 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   useEffect(() => {
+    // If we just came back from Google OAuth, grab the token from the URL first.
+    captureTokenFromUrl()
     fetchUser()
     
     const handleUnauthorized = () => {
@@ -31,10 +33,12 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.post('/auth/logout')
-      setUser(null)
-      window.location.href = '/'
     } catch (err) {
       console.error('Logout failed', err)
+    } finally {
+      clearToken()
+      setUser(null)
+      window.location.href = '/'
     }
   }
 
