@@ -120,3 +120,47 @@ export const useAdminDeleteMenuItem = () => {
     onSuccess: (_, vars) => invalidateAdminMenu(queryClient, vars.shopId)
   })
 }
+
+// Hostels (public list for onboarding)
+export const useHostels = () => useQuery({ queryKey: ['hostels'], queryFn: () => api.get('/hostels').then(r => r.data) })
+
+// Admin hostel management
+export const useAdminHostels = () => useQuery({ queryKey: ['admin', 'hostels'], queryFn: () => api.get('/admin/hostels').then(r => r.data) })
+
+const invalidateHostels = (queryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['admin', 'hostels'] })
+  queryClient.invalidateQueries({ queryKey: ['hostels'] })
+}
+
+export const useCreateHostel = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.post('/admin/hostels', data).then(r => r.data),
+    onSuccess: () => invalidateHostels(queryClient)
+  })
+}
+
+export const useUpdateHostel = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => api.patch(`/admin/hostels/${id}`, data).then(r => r.data),
+    onSuccess: () => invalidateHostels(queryClient)
+  })
+}
+
+export const useDeleteHostel = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => api.delete(`/admin/hostels/${id}`).then(r => r.data),
+    onSuccess: () => invalidateHostels(queryClient)
+  })
+}
+
+// Admin user deletion
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => api.delete(`/admin/users/${id}`).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+  })
+}

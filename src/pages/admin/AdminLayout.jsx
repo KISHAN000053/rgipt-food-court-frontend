@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Store, Utensils, Users, ClipboardList, Settings, IndianRupee } from 'lucide-react'
+import { LayoutDashboard, Store, Utensils, Users, ClipboardList, Settings, IndianRupee, Building2 } from 'lucide-react'
 
 export default function AdminLayout() {
   const location = useLocation()
@@ -9,6 +9,7 @@ export default function AdminLayout() {
     { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/shops', icon: Store, label: 'Shops' },
     { path: '/admin/menu', icon: Utensils, label: 'Menu Items' },
+    { path: '/admin/hostels', icon: Building2, label: 'Hostels' },
     { path: '/admin/users', icon: Users, label: 'Users' },
     { path: '/admin/orders', icon: ClipboardList, label: 'Orders' },
     { path: '/admin/payouts', icon: IndianRupee, label: 'Payouts' },

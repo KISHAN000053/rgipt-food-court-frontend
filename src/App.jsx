@@ -26,6 +26,7 @@ const AdminUsers = React.lazy(() => import('./pages/admin/AdminUsers'))
 const AdminOrders = React.lazy(() => import('./pages/admin/AdminOrders'))
 const AdminSettings = React.lazy(() => import('./pages/admin/AdminSettings'))
 const AdminPayouts = React.lazy(() => import('./pages/admin/AdminPayouts'))
+const AdminHostels = React.lazy(() => import('./pages/admin/AdminHostels'))
 
 const ShopLayout = React.lazy(() => import('./pages/shop/ShopLayout'))
 const ShopDashboard = React.lazy(() => import('./pages/shop/ShopDashboard'))
@@ -103,6 +104,7 @@ export default function App() {
               <Route path="orders" element={<AdminOrders />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="payouts" element={<AdminPayouts />} />
+              <Route path="hostels" element={<AdminHostels />} />
             </Route>
           </Route>
 
