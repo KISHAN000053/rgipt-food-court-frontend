@@ -1,12 +1,13 @@
 import React from 'react'
 import { Check } from 'lucide-react'
+import { statusLabel } from '../utils/orderLabels'
 
-export default function OrderTracker({ status }) {
+export default function OrderTracker({ status, orderType }) {
   const steps = [
     { id: 'pending', label: 'Placed' },
     { id: 'accepted', label: 'Accepted' },
     { id: 'preparing', label: 'Preparing' },
-    { id: 'delivery_initiated', label: 'Delivery Initiated' }
+    { id: 'delivery_initiated', label: statusLabel('delivery_initiated', orderType) }
   ]
 
   const statusMap = {

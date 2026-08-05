@@ -42,7 +42,7 @@ export default function OrderDetail() {
               <h1 className="text-2xl font-bold text-secondary mb-1">Order #{order._id.slice(-6).toUpperCase()}</h1>
               <p className="text-gray-500">{order.shop?.name}</p>
             </div>
-            <OrderStatusBadge status={order.status} />
+            <OrderStatusBadge status={order.status} orderType={order.orderType} />
           </div>
           
           <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -53,7 +53,7 @@ export default function OrderDetail() {
 
         <div className="p-6 bg-gray-50 border-b border-gray-100">
           <h3 className="font-semibold text-secondary mb-4">Live Tracking</h3>
-          <OrderTracker status={order.status} />
+          <OrderTracker status={order.status} orderType={order.orderType} />
         </div>
 
         <div className="p-6 border-b border-gray-100">
@@ -91,20 +91,38 @@ export default function OrderDetail() {
         </div>
 
         <div className="p-6">
-          <h3 className="font-semibold text-secondary mb-4">Delivery Details</h3>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-              <div>
-                <p className="font-medium text-secondary">{order.user?.hostel || '—'}</p>
-                <p className="text-gray-500 text-sm">Room {order.user?.roomNumber || '—'}</p>
+          <h3 className="font-semibold text-secondary mb-4">
+            {order.orderType === 'takeaway' ? 'Pickup Details' : 'Delivery Details'}
+          </h3>
+          {order.orderType === 'takeaway' ? (
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-secondary">Collect from {order.shop?.name}</p>
+                  <p className="text-gray-500 text-sm">You'll be notified when it's ready for pickup.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <p className="text-secondary">{order.user?.phone || '—'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Phone className="w-5 h-5 text-gray-400" />
-              <p className="text-secondary">{order.user?.phone || '—'}</p>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-secondary">{order.user?.hostel || '—'}</p>
+                  <p className="text-gray-500 text-sm">Room {order.user?.roomNumber || '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <p className="text-secondary">{order.user?.phone || '—'}</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

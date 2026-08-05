@@ -78,10 +78,13 @@ function OrderGroupCard({ group }) {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h3 className="font-bold text-secondary">{order.shop?.name || 'Shop'}</h3>
-            <OrderStatusBadge status={order.status} />
+            <OrderStatusBadge status={order.status} orderType={order.orderType} />
           </div>
           <p className="text-gray-500 text-sm mb-2">Order #{order._id.slice(-6).toUpperCase()}</p>
           <p className="font-medium text-secondary">₹{order.total} • {order.items.length} items</p>
+          <span className="inline-block mt-2 text-xs text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
+            {order.orderType === 'takeaway' ? 'Takeaway' : 'Deliver to Hostel'}
+          </span>
         </div>
         <div className="text-gray-300 group-hover:text-primary transition">
           <ChevronRight className="w-6 h-6" />
@@ -108,7 +111,7 @@ function OrderGroupCard({ group }) {
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h3 className="font-medium text-secondary">{order.shop?.name || 'Shop'}</h3>
-              <OrderStatusBadge status={order.status} />
+              <OrderStatusBadge status={order.status} orderType={order.orderType} />
             </div>
             <p className="text-gray-500 text-sm">{order.items.length} items • ₹{order.total}</p>
           </div>

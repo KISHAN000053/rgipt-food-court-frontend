@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, ShoppingCart, Trash2 } from 'lucide-react'
+import { X, ShoppingCart, Trash2, Store, Home } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
+import { useAuth } from '../hooks/useAuth'
 import { usePublicSettings, usePlaceOrder } from '../api/queries'
 import EmptyState from './ui/EmptyState'
 
 export default function CartDrawer({ onClose }) {
   const { items, updateQty, clearCart, total } = useCart()
+  const { user } = useAuth()
   const { data: settings } = usePublicSettings()
   const placeOrder = usePlaceOrder()
   const navigate = useNavigate()
@@ -15,6 +17,7 @@ export default function CartDrawer({ onClose }) {
   const grandTotal = total + (items.length > 0 ? serviceFee : 0)
 
   const [checkoutMode, setCheckoutMode] = useState(false)
+  const [orderType, setOrderType] = useState('hostel')
   const [error, setError] = useState('')
 
   // Group cart items by shop for display — students order across shops in one checkout,
@@ -35,6 +38,7 @@ export default function CartDrawer({ onClose }) {
     try {
       await placeOrder.mutateAsync({
         items: items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
+        orderType,
         paymentMethod: 'cash', // COD only for now — swap in Razorpay flow here later
       })
       clearCart()
@@ -95,12 +99,50 @@ export default function CartDrawer({ onClose }) {
               ))}
 
               {checkoutMode && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                  <h4 className="font-medium mb-2">Payment Method</h4>
-                  <div className="p-3 border border-gray-100 rounded-lg bg-gray-50 text-sm text-gray-600">
-                    Cash on Delivery — online payment coming soon.
+                <>
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                    <h4 className="font-medium mb-3">How do you want it?</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setOrderType('hostel')}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'hostel' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                      >
+                        <Home className={`w-6 h-6 ${orderType === 'hostel' ? 'text-primary' : 'text-gray-400'}`} />
+                        <span className={`text-sm font-medium ${orderType === 'hostel' ? 'text-primary' : 'text-gray-600'}`}>Deliver to Hostel</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOrderType('takeaway')}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'takeaway' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                      >
+                        <Store className={`w-6 h-6 ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-400'}`} />
+                        <span className={`text-sm font-medium ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-600'}`}>Takeaway</span>
+                      </button>
+                    </div>
+
+                    {orderType === 'hostel' ? (
+                      <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+                        {user?.hostel ? (
+                          <>Delivering to <span className="font-medium text-secondary">{user.hostel}, Room {user.roomNumber}</span></>
+                        ) : (
+                          <span className="text-red-500">Set your hostel &amp; room in your profile first.</span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+                        Collect from the shop counter when it's ready.
+                      </div>
+                    )}
                   </div>
-                </div>
+
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                    <h4 className="font-medium mb-2">Payment Method</h4>
+                    <div className="p-3 border border-gray-100 rounded-lg bg-gray-50 text-sm text-gray-600">
+                      Cash on Delivery — online payment coming soon.
+                    </div>
+                  </div>
+                </>
               )}
 
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-2">
@@ -135,7 +177,7 @@ export default function CartDrawer({ onClose }) {
             ) : (
               <button
                 onClick={handlePlaceOrder}
-                disabled={placeOrder.isPending}
+                disabled={placeOrder.isPending || (orderType === 'hostel' && !user?.hostel)}
                 className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm disabled:opacity-50"
               >
                 {placeOrder.isPending ? 'Placing Order...' : 'Place Order'}
