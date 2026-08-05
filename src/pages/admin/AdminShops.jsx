@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAdminShops, useCreateShop, useUpdateShop, useDeleteShop } from '../../api/queries'
 
-const emptyForm = { name: '', description: '', ownerEmail: '', categories: '' }
+const emptyForm = { name: '', ownerEmail: '' }
 
 export default function AdminShops() {
   const { data: shops } = useAdminShops()
@@ -42,9 +42,7 @@ export default function AdminShops() {
     setEditingId(shop._id)
     setForm({
       name: shop.name || '',
-      description: shop.description || '',
       ownerEmail: shop.ownerEmail || '',
-      categories: (shop.categories || []).join(', '),
     })
     setError('')
     setModalOpen(true)
@@ -67,11 +65,7 @@ export default function AdminShops() {
 
     const payload = {
       name: form.name.trim(),
-      description: form.description.trim(),
       ownerEmail: form.ownerEmail.trim(),
-      categories: form.categories
-        ? form.categories.split(',').map(c => c.trim()).filter(Boolean)
-        : [],
     }
 
     try {
@@ -159,16 +153,6 @@ export default function AdminShops() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Description</label>
-                <textarea
-                  value={form.description}
-                  onChange={e => setForm({ ...form, description: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                  rows={2}
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">Owner's Gmail</label>
                 <input
                   type="email"
@@ -178,17 +162,6 @@ export default function AdminShops() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <p className="text-xs text-gray-400 mt-1">Only this email can access the shop owner dashboard for this shop. Leave blank to unassign.</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Categories (comma-separated)</label>
-                <input
-                  type="text"
-                  value={form.categories}
-                  onChange={e => setForm({ ...form, categories: e.target.value })}
-                  placeholder="Snacks, Beverages"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
               </div>
 
               {error && <p className="text-red-500 text-sm">{error}</p>}

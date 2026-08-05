@@ -35,13 +35,18 @@ const ShopMenu = React.lazy(() => import('./pages/shop/ShopMenu'))
 
 function RequireOnboarded({ children }) {
   const { user } = useAuth()
+  // Admins and shop owners skip student onboarding entirely.
+  if (user && user.role === 'admin') return <Navigate to="/admin" replace />
+  if (user && user.isShopOwner) return <Navigate to="/shop-owner" replace />
   if (user && !user.isOnboarded) return <Navigate to="/onboarding" replace />
   return children
 }
 
 function RequireAdmin({ children }) {
   const { user } = useAuth()
-  if (user && user.role !== 'admin') return <Navigate to="/home" replace />
+  if (user && user.role !== 'admin') {
+    return <Navigate to={user.isShopOwner ? '/shop-owner' : '/home'} replace />
+  }
   return children
 }
 
@@ -79,7 +84,7 @@ export default function App() {
     <>
       <Suspense fallback={<FullPageLoading />}>
         <Routes>
-          <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/home'} replace /> : <Landing />} />
+          <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.isShopOwner ? '/shop-owner' : '/home'} replace /> : <Landing />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
         <Route path="/code-of-conduct" element={<CodeOfConduct />} />

@@ -88,7 +88,7 @@ export default function Profile() {
                 inputMode="numeric"
                 value={roomNumber}
                 onChange={e => setRoomNumber(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
-                placeholder="e.g. 902 or 1204"
+                placeholder="Room number"
                 className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none font-mono"
               />
               <p className="text-xs text-gray-400 mt-1">3 or 4 digits.</p>

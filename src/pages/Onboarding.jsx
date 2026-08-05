@@ -5,9 +5,15 @@ import { useHostels } from '../api/queries'
 import api from '../api/axios'
 
 export default function Onboarding() {
-  const { refetchUser } = useAuth()
+  const { user, refetchUser } = useAuth()
   const navigate = useNavigate()
   const { data: hostels } = useHostels()
+
+  // Shop owners and admins never onboard as students.
+  useEffect(() => {
+    if (user?.role === 'admin') navigate('/admin', { replace: true })
+    else if (user?.isShopOwner) navigate('/shop-owner', { replace: true })
+  }, [user, navigate])
 
   const [hostelId, setHostelId] = useState('')
   const [roomDigits, setRoomDigits] = useState('')
@@ -97,7 +103,7 @@ export default function Onboarding() {
                 inputMode="numeric"
                 value={roomDigits}
                 onChange={handleRoomChange}
-                placeholder="e.g. 902 or 1204"
+                placeholder="Room number"
                 className="flex-1 p-3 outline-none font-mono"
                 required
               />
