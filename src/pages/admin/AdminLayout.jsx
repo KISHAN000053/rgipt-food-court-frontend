@@ -1,9 +1,11 @@
 import React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Store, Utensils, Users, ClipboardList, Settings, IndianRupee, Building2 } from 'lucide-react'
+import { LayoutDashboard, Store, Utensils, Users, ClipboardList, Settings, IndianRupee, Building2, LogOut } from 'lucide-react'
+import { useAuth } from '../../hooks/useAuth'
 
 export default function AdminLayout() {
   const location = useLocation()
+  const { logout } = useAuth()
   
   const navItems = [
     { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
@@ -38,6 +40,15 @@ export default function AdminLayout() {
             )
           })}
         </nav>
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-red-600 hover:bg-red-50 transition"
+          >
+            <LogOut className="w-5 h-5" />
+            Log Out
+          </button>
+        </div>
       </aside>
       
       <main className="flex-1">
