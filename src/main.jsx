@@ -13,6 +13,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      staleTime: 30 * 1000, // treat data as fresh for 30s — avoids refetch on every mount
     },
   },
 })

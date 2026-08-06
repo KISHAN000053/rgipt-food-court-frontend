@@ -32,6 +32,7 @@ const AdminHostels = React.lazy(() => import('./pages/admin/AdminHostels'))
 const ShopLayout = React.lazy(() => import('./pages/shop/ShopLayout'))
 const ShopDashboard = React.lazy(() => import('./pages/shop/ShopDashboard'))
 const ShopMenu = React.lazy(() => import('./pages/shop/ShopMenu'))
+const ShopReports = React.lazy(() => import('./pages/shop/ShopReports'))
 
 function RequireOnboarded({ children }) {
   const { user } = useAuth()
@@ -119,6 +120,7 @@ export default function App() {
             <Route path="/shop-owner" element={<LayoutWrapper><ShopLayout /></LayoutWrapper>}>
               <Route index element={<ShopDashboard />} />
               <Route path="menu" element={<ShopMenu />} />
+              <Route path="reports" element={<ShopReports />} />
             </Route>
           </Route>
         </Route>

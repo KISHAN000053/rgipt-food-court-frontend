@@ -18,6 +18,10 @@ export const useSearchMenu = (q) => useQuery({ queryKey: ['search', q], queryFn:
 export const useOwnerOrders = () => useQuery({ queryKey: ['owner', 'orders'], queryFn: () => api.get('/owner/orders').then(r => r.data), refetchInterval: 30000 })
 export const useOwnerMenu = () => useQuery({ queryKey: ['owner', 'menu'], queryFn: () => api.get('/owner/menu').then(r => r.data) })
 export const useOwnerStats = () => useQuery({ queryKey: ['owner', 'stats'], queryFn: () => api.get('/owner/stats').then(r => r.data) })
+export const useOwnerReport = (from, to) => useQuery({
+  queryKey: ['owner', 'report', from, to],
+  queryFn: () => api.get('/owner/report', { params: { from, to } }).then(r => r.data),
+})
 
 const invalidateOwnerMenu = (queryClient) => queryClient.invalidateQueries({ queryKey: ['owner', 'menu'] })
 
