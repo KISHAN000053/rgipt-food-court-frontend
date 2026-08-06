@@ -233,3 +233,14 @@ export const useVerifyRazorpayPayment = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders', 'my'] })
   })
 }
+
+// --- Shop owner's own shop status ---
+export const useMyShop = () => useQuery({ queryKey: ['owner', 'shop'], queryFn: () => api.get('/owner/shop').then(r => r.data) })
+
+export const useToggleMyShopStatus = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (isOpen) => api.patch('/owner/shop/status', { isOpen }).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['owner', 'shop'] })
+  })
+}
