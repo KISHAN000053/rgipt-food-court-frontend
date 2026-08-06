@@ -44,7 +44,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => setItems([])
 
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0)
-  const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
+  const total = Math.round(items.reduce((acc, item) => acc + (item.price * item.quantity), 0) * 100) / 100
 
   return (
     <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, itemCount, total }}>

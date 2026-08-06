@@ -8,6 +8,7 @@ export default function AdminPayouts() {
 
   if (isLoading) return <LoadingSkeleton type="text" count={5} />
   if (error) return <div className="p-4 bg-red-50 text-red-600 rounded-lg">Failed to load payouts.</div>
+  if (!data) return null
 
   const { payouts, summary } = data
 

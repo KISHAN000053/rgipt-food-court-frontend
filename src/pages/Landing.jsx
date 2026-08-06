@@ -55,7 +55,7 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16 max-w-3xl w-full">
           {[
-            { icon: MapPin, title: 'To your room', body: 'Delivered to your hostel, not a pickup counter.' },
+            { icon: MapPin, title: 'To your room', body: 'Hostel delivery for first years — everyone else can take away.' },
             { icon: Clock, title: 'Live tracking', body: 'Watch it go from accepted to on-its-way.' },
             { icon: Moon, title: 'After-hours', body: 'Built for the nights you can\'t leave campus.' },
           ].map(({ icon: Icon, title, body }) => (
