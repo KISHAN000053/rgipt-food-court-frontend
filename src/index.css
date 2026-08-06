@@ -18,6 +18,12 @@
 html.dark body {
   background-color: #16120f;
 }
+.app-page {
+  background-color: #f9fafb; /* light: same soft gray as before */
+}
+html.dark .app-page {
+  background-color: #16120f; /* dark: deep page bg, cards (#221c18) sit above it */
+}
 html.dark .bg-white {
   background-color: #221c18 !important;
 }

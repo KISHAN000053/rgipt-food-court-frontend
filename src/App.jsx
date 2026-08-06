@@ -62,7 +62,7 @@ function RequireShopOwner({ children }) {
 
 function LayoutWrapper({ children }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col pt-16">
+    <div className="min-h-screen app-page flex flex-col pt-16">
       <Navbar />
       <main className="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {children}

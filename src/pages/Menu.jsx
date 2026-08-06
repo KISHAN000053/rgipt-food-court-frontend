@@ -82,7 +82,7 @@ export default function Menu() {
         </div>
       )}
 
-      <div className="mb-6 sticky top-16 bg-gray-50 z-10 py-2">
+      <div className="mb-6 sticky top-16 app-page z-10 py-2">
         <FilterBar filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
       </div>
 

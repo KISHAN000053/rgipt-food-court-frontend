@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Utensils, FileText } from 'lucide-react'
+import { LayoutDashboard, Utensils, FileText, LifeBuoy } from 'lucide-react'
 
 export default function ShopLayout() {
   const location = useLocation()
@@ -9,6 +9,7 @@ export default function ShopLayout() {
     { path: '/shop-owner', icon: LayoutDashboard, label: 'Live Orders' },
     { path: '/shop-owner/menu', icon: Utensils, label: 'My Menu' },
     { path: '/shop-owner/reports', icon: FileText, label: 'Reports' },
+    { path: '/support', icon: LifeBuoy, label: 'Support' },
   ]
 
   return (
