@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth'
 import Navbar from './components/layout/Navbar'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import ThemeToggle from './components/ThemeToggle'
+import { useSocket } from './hooks/useSocket'
 
 const Landing = React.lazy(() => import('./pages/Landing'))
 const Home = React.lazy(() => import('./pages/Home'))
@@ -76,6 +77,7 @@ function FullPageLoading() {
 
 export default function App() {
   const { user } = useAuth()
+  useSocket() // one global connection: keeps shop status, orders and menus live everywhere
   
   useEffect(() => {
     if (Notification.permission === 'default') {

@@ -5,6 +5,7 @@ import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import OrderStatusBadge from '../components/ui/OrderStatusBadge'
 import EmptyState from '../components/ui/EmptyState'
 import { ClipboardList, ChevronRight, Store } from 'lucide-react'
+import { money } from '../utils/money'
 
 export default function Orders() {
   const { data: orders, isLoading, error } = useMyOrders()
@@ -81,7 +82,7 @@ function OrderGroupCard({ group }) {
             <OrderStatusBadge status={order.status} orderType={order.orderType} />
           </div>
           <p className="text-gray-500 text-sm mb-2">Order #{order._id.slice(-6).toUpperCase()}</p>
-          <p className="font-medium text-secondary">₹{order.total} • {order.items.length} items</p>
+          <p className="font-medium text-secondary">₹{money(order.total)} • {order.items.length} items</p>
           <span className="inline-block mt-2 text-xs text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
             {order.orderType === 'takeaway' ? 'Takeaway' : 'Deliver to Hostel'}
           </span>
@@ -100,7 +101,7 @@ function OrderGroupCard({ group }) {
           <Store className="w-4 h-4" />
           {group.length} shops • {placedAt}
         </div>
-        <span className="font-bold text-secondary">₹{combinedTotal}</span>
+        <span className="font-bold text-secondary">₹{money(combinedTotal)}</span>
       </div>
       {group.map(order => (
         <Link
@@ -113,7 +114,7 @@ function OrderGroupCard({ group }) {
               <h3 className="font-medium text-secondary">{order.shop?.name || 'Shop'}</h3>
               <OrderStatusBadge status={order.status} orderType={order.orderType} />
             </div>
-            <p className="text-gray-500 text-sm">{order.items.length} items • ₹{order.total}</p>
+            <p className="text-gray-500 text-sm">{order.items.length} items • ₹{money(order.total)}</p>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-300" />
         </Link>

@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { useCart } from '../hooks/useCart'
 import { useParty } from '../context/PartyContext'
 import { useAddPartyItem } from '../api/queries'
+import { money } from '../utils/money'
 
-export default function MenuItemCard({ item }) {
+export default function MenuItemCard({ item, shopOpen = true }) {
   const { items, addItem, updateQty } = useCart()
   const { activeCode } = useParty()
   const addPartyItem = useAddPartyItem()
@@ -31,11 +32,15 @@ export default function MenuItemCard({ item }) {
           </div>
           <h4 className="font-semibold text-secondary">{item.name}</h4>
         </div>
-        <span className="font-bold text-primary">₹{item.price}</span>
+        <span className="font-bold text-primary">₹{money(item.price)}</span>
       </div>
 
       <div className="flex flex-col items-end justify-center w-24">
-        {activeCode ? (
+        {!shopOpen ? (
+          <span className="px-3 py-1.5 text-xs font-medium text-gray-400 border border-gray-200 rounded-lg">
+            Closed
+          </span>
+        ) : activeCode ? (
           <button
             onClick={handlePartyAdd}
             disabled={addPartyItem.isPending}

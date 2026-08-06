@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCreatePartyRoom, useMyPartyRooms } from '../api/queries'
 import { PartyPopper, Users, ArrowRight } from 'lucide-react'
+import { money } from '../utils/money'
 
 export default function Party() {
   const navigate = useNavigate()
@@ -98,7 +99,7 @@ export default function Party() {
                   <p className="font-bold text-secondary">{room.name}</p>
                   <p className="text-sm text-gray-500 flex items-center gap-1.5 mt-0.5">
                     <Users className="w-3.5 h-3.5" />
-                    {room.participants.length} {room.participants.length === 1 ? 'person' : 'people'} · {room.itemCount} items · ₹{room.subtotal}
+                    {room.participants.length} {room.participants.length === 1 ? 'person' : 'people'} · {room.itemCount} items · ₹{money(room.subtotal)}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

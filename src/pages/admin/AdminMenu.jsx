@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAdminShops, useAdminShopMenu, useAdminCreateMenuItem, useAdminUpdateMenuItem, useAdminDeleteMenuItem } from '../../api/queries'
+import { money } from '../../utils/money'
 
 const emptyForm = { name: '', price: '', category: '', isVeg: true, isAvailable: true }
 
@@ -102,7 +103,7 @@ export default function AdminMenu() {
                     {item.name}
                   </div>
                 </td>
-                <td className="py-4 px-4 font-medium">₹{item.price}</td>
+                <td className="py-4 px-4 font-medium">₹{money(item.price)}</td>
                 <td className="py-4 px-4 text-gray-600 capitalize">{item.category}</td>
                 <td className="py-4 pl-4 text-right space-x-3">
                   <button onClick={() => openEdit(item)} className="text-primary hover:underline font-medium text-sm">Edit</button>

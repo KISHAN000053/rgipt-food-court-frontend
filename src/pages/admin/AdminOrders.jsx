@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { useAdminOrders } from '../../api/queries'
 import OrderStatusBadge from '../../components/ui/OrderStatusBadge'
 import { Search } from 'lucide-react'
+import { money } from '../../utils/money'
 
 export default function AdminOrders() {
   const { data: orders } = useAdminOrders()
@@ -51,7 +52,7 @@ export default function AdminOrders() {
                 <td className="py-4 px-4 font-medium text-secondary">{order.user?.name}</td>
                 <td className="py-4 px-4 text-gray-600">{order.shop?.name}</td>
                 <td className="py-4 px-4 text-gray-600">{order.orderType === 'takeaway' ? 'Takeaway' : 'Hostel'}</td>
-                <td className="py-4 px-4 font-medium">₹{order.total}</td>
+                <td className="py-4 px-4 font-medium">₹{money(order.total)}</td>
                 <td className="py-4 pl-4"><OrderStatusBadge status={order.status} orderType={order.orderType} /></td>
               </tr>
             ))}

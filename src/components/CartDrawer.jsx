@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { X, ShoppingCart, Trash2, Store, Home } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
 import { useAuth } from '../hooks/useAuth'
-import { usePublicSettings, usePlaceOrder } from '../api/queries'
+import { usePublicSettings, usePlaceOrder, useShops } from '../api/queries'
 import EmptyState from './ui/EmptyState'
+import { money } from '../utils/money'
 
 export default function CartDrawer({ onClose }) {
   const { items, updateQty, clearCart, total } = useCart()
   const { user } = useAuth()
   const { data: settings } = usePublicSettings()
+  const { data: shops } = useShops()
   const placeOrder = usePlaceOrder()
   const navigate = useNavigate()
 
@@ -34,6 +36,16 @@ export default function CartDrawer({ onClose }) {
     }
     return Array.from(groups.values())
   }, [items])
+
+  // A shop can close while items are sitting in the cart — surface that immediately
+  // and block checkout rather than letting the order fail at the server.
+  const closedShops = useMemo(() => {
+    if (!shops) return []
+    const openMap = new Map(shops.map(s => [String(s._id), s.isOpen && !s.isPermanentlyClosed]))
+    return groupedByShop.filter(g => openMap.get(String(g.shopId)) === false)
+  }, [shops, groupedByShop])
+
+  const hasClosedShop = closedShops.length > 0
 
   const handlePlaceOrder = async () => {
     setError('')
@@ -74,16 +86,27 @@ export default function CartDrawer({ onClose }) {
             />
           ) : (
             <div className="space-y-4">
+              {hasClosedShop && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+                  <span className="font-medium">
+                    {closedShops.map(g => g.shopName).join(', ')} {closedShops.length === 1 ? 'has' : 'have'} just closed.
+                  </span>{' '}
+                  Remove {closedShops.length === 1 ? 'those items' : 'them'} to continue.
+                </div>
+              )}
               {groupedByShop.map(group => (
                 <div key={group.shopId} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="px-3 py-2 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                    {group.shopName}
+                  <div className="px-3 py-2 bg-gray-50 border-b border-gray-100 text-xs font-bold uppercase tracking-wide flex justify-between items-center">
+                    <span className="text-gray-500">{group.shopName}</span>
+                    {closedShops.some(c => c.shopId === group.shopId) && (
+                      <span className="text-red-600 normal-case font-medium">Closed</span>
+                    )}
                   </div>
                   {group.items.map(item => (
                     <div key={item.menuItemId} className="flex justify-between items-center p-3 border-b border-gray-50 last:border-0">
                       <div className="flex-1">
                         <h4 className="font-medium text-secondary text-sm">{item.name}</h4>
-                        <span className="text-primary font-medium text-sm">₹{item.price}</span>
+                        <span className="text-primary font-medium text-sm">₹{money(item.price)}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg">
@@ -150,11 +173,11 @@ export default function CartDrawer({ onClose }) {
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-2">
                 <div className="flex justify-between text-gray-500 text-sm">
                   <span>Subtotal ({groupedByShop.length} shop{groupedByShop.length > 1 ? 's' : ''})</span>
-                  <span>₹{total}</span>
+                  <span>₹{money(total)}</span>
                 </div>
                 <div className="flex justify-between text-gray-500 text-sm">
                   <span>Service Fee</span>
-                  <span>₹{serviceFee}</span>
+                  <span>₹{money(serviceFee)}</span>
                 </div>
                 <div className="flex justify-between text-gray-500 text-sm">
                   <span>Processing ({surchargePercent}%)</span>
@@ -176,14 +199,15 @@ export default function CartDrawer({ onClose }) {
             {!checkoutMode ? (
               <button
                 onClick={() => setCheckoutMode(true)}
-                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm"
+                disabled={hasClosedShop}
+                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm disabled:opacity-50"
               >
                 Checkout (₹{grandTotal.toFixed(2)})
               </button>
             ) : (
               <button
                 onClick={handlePlaceOrder}
-                disabled={placeOrder.isPending || (orderType === 'hostel' && !user?.hostel)}
+                disabled={placeOrder.isPending || hasClosedShop || (orderType === 'hostel' && !user?.hostel)}
                 className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm disabled:opacity-50"
               >
                 {placeOrder.isPending ? 'Placing Order...' : 'Place Order'}

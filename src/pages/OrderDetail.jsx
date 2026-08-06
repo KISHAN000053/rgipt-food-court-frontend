@@ -6,6 +6,7 @@ import OrderTracker from '../components/OrderTracker'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import OrderStatusBadge from '../components/ui/OrderStatusBadge'
 import { ArrowLeft, Clock, MapPin, Phone, Store } from 'lucide-react'
+import { money } from '../utils/money'
 
 export default function OrderDetail() {
   const { id } = useParams()
@@ -64,7 +65,7 @@ export default function OrderDetail() {
                 <div>
                   <span className="font-medium">{item.quantity}x</span> {item.name}
                 </div>
-                <div className="text-secondary font-medium">₹{item.price * item.quantity}</div>
+                <div className="text-secondary font-medium">₹{money(item.price * item.quantity)}</div>
               </div>
             ))}
           </div>
@@ -72,11 +73,11 @@ export default function OrderDetail() {
           <div className="space-y-2 pt-4 border-t border-gray-100">
             <div className="flex justify-between text-gray-500 text-sm">
               <span>Subtotal</span>
-              <span>₹{order.subtotal}</span>
+              <span>₹{money(order.subtotal)}</span>
             </div>
             <div className="flex justify-between text-gray-500 text-sm">
               <span>Service Fee</span>
-              <span>₹{order.serviceFee}</span>
+              <span>₹{money(order.serviceFee)}</span>
             </div>
             {order.processingFee > 0 && (
               <div className="flex justify-between text-gray-500 text-sm">
@@ -86,7 +87,7 @@ export default function OrderDetail() {
             )}
             <div className="flex justify-between font-bold text-secondary text-lg pt-2">
               <span>Total</span>
-              <span className="text-primary">₹{order.total}</span>
+              <span className="text-primary">₹{money(order.total)}</span>
             </div>
             {order.serviceFee === 0 && (
               <p className="text-xs text-gray-400 pt-1">

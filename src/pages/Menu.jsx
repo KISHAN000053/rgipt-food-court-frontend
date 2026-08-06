@@ -7,6 +7,7 @@ import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import FilterBar from '../components/FilterBar'
 import EmptyState from '../components/ui/EmptyState'
 import { ArrowLeft, Utensils } from 'lucide-react'
+import { money } from '../utils/money'
 
 export default function Menu() {
   const { id } = useParams()
@@ -75,6 +76,12 @@ export default function Menu() {
         </div>
       </div>
 
+      {!shop.isOpen && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
+          <span className="font-medium">{shop.name} is currently closed.</span> You can browse the menu, but ordering is unavailable right now.
+        </div>
+      )}
+
       <div className="mb-6 sticky top-16 bg-gray-50 z-10 py-2">
         <FilterBar filters={filters} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
       </div>
@@ -94,7 +101,7 @@ export default function Menu() {
                 <h3 className="text-xl font-bold text-secondary mb-4 capitalize">{category}</h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {categoryItems.map(item => (
-                    <MenuItemCard key={item._id} item={{...item, shopId: shop._id, shopName: shop.name}} />
+                    <MenuItemCard key={item._id} item={{...item, shopId: shop._id, shopName: shop.name}} shopOpen={shop.isOpen} />
                   ))}
                 </div>
               </div>
@@ -113,7 +120,7 @@ export default function Menu() {
               <span>{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>
               <span className="text-xs text-white/70">View Cart</span>
             </div>
-            <span className="text-lg">₹{total}</span>
+            <span className="text-lg">₹{money(total)}</span>
           </button>
         </div>
       )}

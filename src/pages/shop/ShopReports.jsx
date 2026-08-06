@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useOwnerReport } from '../../api/queries'
 import { Download } from 'lucide-react'
+import { money } from '../../utils/money'
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
@@ -83,7 +84,7 @@ export default function ShopReports() {
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-sm text-gray-500 mb-1">Net Earnings</p>
-              <p className="text-2xl font-bold text-primary">₹{data?.totalEarnings || 0}</p>
+              <p className="text-2xl font-bold text-primary">₹{money(data?.totalEarnings || 0)}</p>
             </div>
           </div>
 
@@ -105,7 +106,7 @@ export default function ShopReports() {
                     <td className="py-3 px-4 text-gray-600 text-sm">{new Date(r.date).toLocaleDateString()}</td>
                     <td className="py-3 px-4 text-gray-600 text-sm">{r.type}</td>
                     <td className="py-3 px-4 text-gray-600 text-sm max-w-xs truncate">{r.items}</td>
-                    <td className="py-3 pl-4 text-right font-medium">₹{r.earnings}</td>
+                    <td className="py-3 pl-4 text-right font-medium">₹{money(r.earnings)}</td>
                   </tr>
                 ))}
                 {(!data?.rows || data.rows.length === 0) && (
@@ -116,7 +117,7 @@ export default function ShopReports() {
                 <tfoot>
                   <tr className="border-t-2 border-gray-100 font-bold text-secondary">
                     <td colSpan={4} className="py-3 pr-4 text-right">Total Earnings</td>
-                    <td className="py-3 pl-4 text-right text-primary">₹{data.totalEarnings}</td>
+                    <td className="py-3 pl-4 text-right text-primary">₹{money(data.totalEarnings)}</td>
                   </tr>
                 </tfoot>
               )}

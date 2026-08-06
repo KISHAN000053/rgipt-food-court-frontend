@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useOwnerMenu, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem } from '../../api/queries'
+import { money } from '../../utils/money'
 
 const emptyForm = { name: '', price: '', category: '', isVeg: true, isAvailable: true }
 
@@ -107,7 +108,7 @@ export default function ShopMenu() {
                     {item.name}
                   </div>
                 </td>
-                <td className="py-4 px-4 font-medium">₹{item.price}</td>
+                <td className="py-4 px-4 font-medium">₹{money(item.price)}</td>
                 <td className="py-4 px-4 text-gray-600 capitalize">{item.category}</td>
                 <td className="py-4 px-4">
                   <button

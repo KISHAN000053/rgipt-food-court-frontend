@@ -4,6 +4,7 @@ import { usePartyRoom, useRemovePartyItem, usePartyCheckout } from '../api/queri
 import { useParty } from '../context/PartyContext'
 import { useAuth } from '../hooks/useAuth'
 import { Copy, Check, Trash2, Home, Store, Users, Plus, ArrowLeft } from 'lucide-react'
+import { money } from '../utils/money'
 
 export default function PartyRoom() {
   const { code } = useParams()
@@ -137,7 +138,7 @@ export default function PartyRoom() {
                 <span className="font-bold text-secondary text-sm">
                   {person.userId === String(user?._id) ? 'You' : person.name}
                 </span>
-                <span className="text-sm font-medium text-gray-500">₹{person.subtotal}</span>
+                <span className="text-sm font-medium text-gray-500">₹{money(person.subtotal)}</span>
               </div>
               {person.items.map(item => (
                 <div key={item._id} className="flex justify-between items-center px-4 py-3 border-b border-gray-50 last:border-0">
@@ -148,7 +149,7 @@ export default function PartyRoom() {
                     <p className="text-xs text-gray-400">{item.shopName}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-secondary">₹{item.price * item.quantity}</span>
+                    <span className="text-sm font-medium text-secondary">₹{money(item.price * item.quantity)}</span>
                     {!isOrdered && (item.isMine || room.isHost) && (
                       <button
                         onClick={() => handleRemove(item._id)}
@@ -170,11 +171,11 @@ export default function PartyRoom() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-2">
           <div className="flex justify-between text-gray-500 text-sm">
             <span>Subtotal ({room.itemCount} items)</span>
-            <span>₹{room.subtotal}</span>
+            <span>₹{money(room.subtotal)}</span>
           </div>
           <div className="flex justify-between text-gray-500 text-sm">
             <span>Service Fee</span>
-            <span>₹{serviceFee}</span>
+            <span>₹{money(serviceFee)}</span>
           </div>
           <div className="flex justify-between text-gray-500 text-sm">
             <span>Processing ({surchargePercent}%)</span>

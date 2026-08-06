@@ -2,6 +2,7 @@ import React from 'react'
 import { useAdminPayouts } from '../../api/queries'
 import LoadingSkeleton from '../../components/ui/LoadingSkeleton'
 import { Store } from 'lucide-react'
+import { money } from '../../utils/money'
 
 export default function AdminPayouts() {
   const { data, isLoading, error } = useAdminPayouts()
@@ -42,7 +43,7 @@ export default function AdminPayouts() {
                   <Store className="w-4 h-4 text-gray-400" />
                   <h3 className="font-bold text-secondary">{p.shopName}</h3>
                 </div>
-                <p className="text-2xl font-bold text-primary mb-1">₹{p.amountOwed}</p>
+                <p className="text-2xl font-bold text-primary mb-1">₹{money(p.amountOwed)}</p>
                 <p className="text-xs text-gray-400">{p.orderCount} order{p.orderCount === 1 ? '' : 's'}</p>
               </div>
             ))}
@@ -62,7 +63,7 @@ function SummaryCard({ label, value, tone }) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
       <p className="text-sm text-gray-500 mb-1">{label}</p>
-      <p className={`text-2xl font-bold ${tone === 'primary' ? 'text-primary' : 'text-secondary'}`}>₹{value}</p>
+      <p className={`text-2xl font-bold ${tone === 'primary' ? 'text-primary' : 'text-secondary'}`}>₹{money(value)}</p>
     </div>
   )
 }
