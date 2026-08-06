@@ -13,6 +13,8 @@ const Orders = React.lazy(() => import('./pages/Orders'))
 const OrderDetail = React.lazy(() => import('./pages/OrderDetail'))
 const Profile = React.lazy(() => import('./pages/Profile'))
 const Support = React.lazy(() => import('./pages/Support'))
+const Party = React.lazy(() => import('./pages/Party'))
+const PartyRoom = React.lazy(() => import('./pages/PartyRoom'))
 const Onboarding = React.lazy(() => import('./pages/Onboarding'))
 const Terms = React.lazy(() => import('./pages/Terms'))
 const Privacy = React.lazy(() => import('./pages/Privacy'))
@@ -101,6 +103,8 @@ export default function App() {
             <Route path="/orders/:id" element={<LayoutWrapper><OrderDetail /></LayoutWrapper>} />
             <Route path="/profile" element={<LayoutWrapper><Profile /></LayoutWrapper>} />
             <Route path="/support" element={<LayoutWrapper><Support /></LayoutWrapper>} />
+            <Route path="/party" element={<LayoutWrapper><Party /></LayoutWrapper>} />
+            <Route path="/party/:code" element={<LayoutWrapper><PartyRoom /></LayoutWrapper>} />
           </Route>
           
           <Route element={<RequireAdmin><Outlet /></RequireAdmin>}>

@@ -168,3 +168,53 @@ export const useDeleteUser = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
   })
 }
+
+// --- Party orders ---
+export const usePartyRoom = (code) => useQuery({
+  queryKey: ['party', code],
+  queryFn: () => api.get(`/party/${code}`).then(r => r.data),
+  enabled: !!code,
+  refetchInterval: 8000, // keep the room live as guests add items
+})
+
+export const useMyPartyRooms = () => useQuery({
+  queryKey: ['party', 'mine'],
+  queryFn: () => api.get('/party/mine').then(r => r.data),
+})
+
+export const useCreatePartyRoom = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.post('/party', data).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['party', 'mine'] })
+  })
+}
+
+export const useAddPartyItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ code, menuItemId, quantity }) =>
+      api.post(`/party/${code}/items`, { menuItemId, quantity }).then(r => r.data),
+    onSuccess: (_, vars) => queryClient.invalidateQueries({ queryKey: ['party', vars.code] })
+  })
+}
+
+export const useRemovePartyItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ code, itemId }) => api.delete(`/party/${code}/items/${itemId}`).then(r => r.data),
+    onSuccess: (_, vars) => queryClient.invalidateQueries({ queryKey: ['party', vars.code] })
+  })
+}
+
+export const usePartyCheckout = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ code, orderType, paymentMethod }) =>
+      api.post(`/party/${code}/checkout`, { orderType, paymentMethod }).then(r => r.data),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['party', vars.code] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'my'] })
+    }
+  })
+}

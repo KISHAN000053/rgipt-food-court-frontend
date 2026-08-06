@@ -34,6 +34,7 @@ export default function Navbar() {
                 <>
                   <Link to="/home" className="text-secondary hover:text-primary transition font-medium">Home</Link>
                   <Link to="/orders" className="text-secondary hover:text-primary transition font-medium">Orders</Link>
+                  <Link to="/party" className="text-secondary hover:text-primary transition font-medium">Party</Link>
                 </>
               )}
               {user && (
@@ -76,6 +77,7 @@ export default function Navbar() {
               <>
                 <Link to="/home" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Home</Link>
                 <Link to="/orders" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Orders</Link>
+                <Link to="/party" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Party</Link>
               </>
             )}
             <Link to="/support" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-secondary hover:bg-gray-50 rounded-md">Support</Link>
