@@ -218,3 +218,18 @@ export const usePartyCheckout = () => {
     }
   })
 }
+
+// --- Razorpay ---
+export const useCreateRazorpayOrder = () => {
+  return useMutation({
+    mutationFn: ({ groupId }) => api.post('/payments/razorpay/create', { groupId }).then(r => r.data),
+  })
+}
+
+export const useVerifyRazorpayPayment = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => api.post('/payments/razorpay/verify', data).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders', 'my'] })
+  })
+}

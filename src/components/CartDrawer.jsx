@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { X, ShoppingCart, Trash2, Store, Home } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
 import { useAuth } from '../hooks/useAuth'
-import { usePublicSettings, usePlaceOrder, useShops } from '../api/queries'
+import { usePublicSettings, usePlaceOrder, useShops, useCreateRazorpayOrder, useVerifyRazorpayPayment } from '../api/queries'
 import EmptyState from './ui/EmptyState'
 import { money } from '../utils/money'
+import { openRazorpayCheckout } from '../utils/razorpay'
 
 export default function CartDrawer({ onClose }) {
   const { items, updateQty, clearCart, total } = useCart()
@@ -13,6 +14,8 @@ export default function CartDrawer({ onClose }) {
   const { data: settings } = usePublicSettings()
   const { data: shops } = useShops()
   const placeOrder = usePlaceOrder()
+  const createRazorpayOrder = useCreateRazorpayOrder()
+  const verifyRazorpayPayment = useVerifyRazorpayPayment()
   const navigate = useNavigate()
 
   const serviceFee = settings?.serviceFee ?? 2
@@ -22,6 +25,8 @@ export default function CartDrawer({ onClose }) {
 
   const [checkoutMode, setCheckoutMode] = useState(false)
   const [orderType, setOrderType] = useState('hostel')
+  const [paymentMethod, setPaymentMethod] = useState('cash') // 'cash' | 'razorpay'
+  const [paying, setPaying] = useState(false)
   const [error, setError] = useState('')
 
   // Group cart items by shop for display — students order across shops in one checkout,
@@ -49,17 +54,53 @@ export default function CartDrawer({ onClose }) {
 
   const handlePlaceOrder = async () => {
     setError('')
+    setPaying(true)
     try {
-      await placeOrder.mutateAsync({
+      // Step 1: always create the order first (status stays 'pending' for razorpay
+      // until payment is actually confirmed — never marked paid on trust alone).
+      const result = await placeOrder.mutateAsync({
         items: items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity })),
         orderType,
-        paymentMethod: 'cash', // COD only for now — swap in Razorpay flow here later
+        paymentMethod,
       })
-      clearCart()
-      onClose()
-      navigate('/orders')
+
+      if (paymentMethod === 'cash') {
+        clearCart()
+        onClose()
+        navigate('/orders')
+        return
+      }
+
+      // Step 2: razorpay — create a Razorpay order for the group total, open checkout.
+      const groupId = result.groupId
+      const rp = await createRazorpayOrder.mutateAsync({ groupId })
+
+      openRazorpayCheckout({
+        keyId: rp.keyId,
+        orderId: rp.razorpayOrderId,
+        amount: rp.amount,
+        prefill: { name: user?.name, email: user?.email, contact: user?.phone },
+        onSuccess: async ({ razorpayOrderId, razorpayPaymentId, razorpaySignature }) => {
+          try {
+            await verifyRazorpayPayment.mutateAsync({ razorpayOrderId, razorpayPaymentId, razorpaySignature })
+            clearCart()
+            onClose()
+            navigate('/orders')
+          } catch (err) {
+            setError('Payment succeeded but confirmation failed — check Orders in a minute, or contact Support if it doesn\'t update.')
+          } finally {
+            setPaying(false)
+          }
+        },
+        onDismiss: () => {
+          // Order exists as 'pending' — student can retry payment from Orders later.
+          setPaying(false)
+          setError('Payment cancelled. Your order is saved as pending — you can try paying again from Orders.')
+        },
+      })
     } catch (err) {
       setError(err.response?.data?.message || 'Could not place your order. Please try again.')
+      setPaying(false)
     }
   }
 
@@ -162,10 +203,26 @@ export default function CartDrawer({ onClose }) {
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                    <h4 className="font-medium mb-2">Payment Method</h4>
-                    <div className="p-3 border border-gray-100 rounded-lg bg-gray-50 text-sm text-gray-600">
-                      Cash on Delivery — online payment coming soon.
+                    <h4 className="font-medium mb-3">Payment Method</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('cash')}
+                        className={`p-3 rounded-lg border-2 text-sm font-medium transition ${paymentMethod === 'cash' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      >
+                        Cash on Delivery
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('razorpay')}
+                        className={`p-3 rounded-lg border-2 text-sm font-medium transition ${paymentMethod === 'razorpay' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      >
+                        Pay Online
+                      </button>
                     </div>
+                    {paymentMethod === 'razorpay' && (
+                      <p className="text-xs text-gray-400 mt-2">Card, UPI, or netbanking via Razorpay.</p>
+                    )}
                   </div>
                 </>
               )}
@@ -207,10 +264,12 @@ export default function CartDrawer({ onClose }) {
             ) : (
               <button
                 onClick={handlePlaceOrder}
-                disabled={placeOrder.isPending || hasClosedShop || (orderType === 'hostel' && !user?.hostel)}
+                disabled={placeOrder.isPending || paying || hasClosedShop || (orderType === 'hostel' && !user?.hostel)}
                 className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm disabled:opacity-50"
               >
-                {placeOrder.isPending ? 'Placing Order...' : 'Place Order'}
+                {placeOrder.isPending || paying
+                  ? (paymentMethod === 'razorpay' ? 'Opening payment...' : 'Placing Order...')
+                  : paymentMethod === 'razorpay' ? `Pay ₹${money(grandTotal)}` : 'Place Order'}
               </button>
             )}
           </div>
