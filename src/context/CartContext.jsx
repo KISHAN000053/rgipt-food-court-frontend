@@ -2,6 +2,11 @@ import React, { createContext, useState, useEffect } from 'react'
 
 export const CartContext = createContext()
 
+// A cart line's identity is menuItemId + variantId — Quarter and Half of the same
+// pizza are different lines, but two plain single-price items with no variant just
+// key on menuItemId (variantId undefined for both).
+const lineKey = (menuItemId, variantId) => `${menuItemId}::${variantId || ''}`
+
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState(() => {
     const saved = localStorage.getItem('rgipt-cart')
@@ -12,33 +17,39 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('rgipt-cart', JSON.stringify(items))
   }, [items])
 
+  // item: { _id, shopId, shopName, name, price, variantId?, variantName? }
   const addItem = (item) => {
     setItems((prev) => {
-      const existing = prev.find(i => i.menuItemId === item._id)
+      const key = lineKey(item._id, item.variantId)
+      const existing = prev.find(i => lineKey(i.menuItemId, i.variantId) === key)
       if (existing) {
-        return prev.map(i => i.menuItemId === item._id ? { ...i, quantity: i.quantity + 1 } : i)
+        return prev.map(i => lineKey(i.menuItemId, i.variantId) === key ? { ...i, quantity: i.quantity + 1 } : i)
       }
-      return [...prev, { 
-        menuItemId: item._id, 
-        shopId: item.shopId, 
-        shopName: item.shopName, 
-        name: item.name, 
-        price: item.price, 
-        quantity: 1 
+      return [...prev, {
+        menuItemId: item._id,
+        variantId: item.variantId || undefined,
+        variantName: item.variantName || undefined,
+        shopId: item.shopId,
+        shopName: item.shopName,
+        name: item.name,
+        price: item.price,
+        quantity: 1
       }]
     })
   }
 
-  const removeItem = (menuItemId) => {
-    setItems(prev => prev.filter(i => i.menuItemId !== menuItemId))
+  const removeItem = (menuItemId, variantId) => {
+    const key = lineKey(menuItemId, variantId)
+    setItems(prev => prev.filter(i => lineKey(i.menuItemId, i.variantId) !== key))
   }
 
-  const updateQty = (menuItemId, qty) => {
+  const updateQty = (menuItemId, qty, variantId) => {
     if (qty < 1) {
-      removeItem(menuItemId)
+      removeItem(menuItemId, variantId)
       return
     }
-    setItems(prev => prev.map(i => i.menuItemId === menuItemId ? { ...i, quantity: qty } : i))
+    const key = lineKey(menuItemId, variantId)
+    setItems(prev => prev.map(i => lineKey(i.menuItemId, i.variantId) === key ? { ...i, quantity: qty } : i))
   }
 
   const clearCart = () => setItems([])

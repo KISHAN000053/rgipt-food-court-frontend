@@ -193,8 +193,8 @@ export const useCreatePartyRoom = () => {
 export const useAddPartyItem = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ code, menuItemId, quantity }) =>
-      api.post(`/party/${code}/items`, { menuItemId, quantity }).then(r => r.data),
+    mutationFn: ({ code, menuItemId, quantity, variantId }) =>
+      api.post(`/party/${code}/items`, { menuItemId, quantity, variantId }).then(r => r.data),
     onSuccess: (_, vars) => queryClient.invalidateQueries({ queryKey: ['party', vars.code] })
   })
 }

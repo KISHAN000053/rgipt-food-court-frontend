@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAdminShops, useAdminShopMenu, useAdminCreateMenuItem, useAdminUpdateMenuItem, useAdminDeleteMenuItem } from '../../api/queries'
 import { money } from '../../utils/money'
 
-const emptyForm = { name: '', price: '', category: '', isVeg: true, isAvailable: true }
+const emptyForm = { name: '', category: '', isVeg: true, isAvailable: true, priceMode: 'single', price: '', variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }] }
 
 export default function AdminMenu() {
   const { data: shops } = useAdminShops()
@@ -24,13 +24,32 @@ export default function AdminMenu() {
 
   const shopName = shops?.find(s => s._id === selectedShop)?.name || ''
 
+  useEffect(() => {
+    setForm(f => {
+      const rows = [...f.variants]
+      while (rows.length < f.variantCount) rows.push({ name: '', price: '' })
+      while (rows.length > f.variantCount) rows.pop()
+      return { ...f, variants: rows }
+    })
+  }, [form.variantCount])
+
   const openAdd = () => { setEditingId(null); setForm(emptyForm); setError(''); setModalOpen(true) }
   const openEdit = (item) => {
     setEditingId(item._id)
-    setForm({
-      name: item.name || '', price: item.price ?? '', category: item.category || '',
-      isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
-    })
+    if (item.hasVariants) {
+      setForm({
+        name: item.name || '', category: item.category || '', isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
+        priceMode: 'multiple', price: '',
+        variantCount: item.variants.length,
+        variants: item.variants.map(v => ({ name: v.name || '', price: String(v.price) })),
+      })
+    } else {
+      setForm({
+        name: item.name || '', category: item.category || '', isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
+        priceMode: 'single', price: item.price ?? '',
+        variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }],
+      })
+    }
     setError(''); setModalOpen(true)
   }
 
@@ -38,12 +57,24 @@ export default function AdminMenu() {
     e.preventDefault()
     setError('')
     if (!form.name.trim()) return setError('Item name is required.')
-    if (form.price === '' || Number(form.price) < 0) return setError('Enter a valid price.')
     if (!form.category.trim()) return setError('Category is required.')
 
-    const payload = {
-      name: form.name.trim(), price: Number(form.price), category: form.category.trim(),
+    let payload = {
+      name: form.name.trim(), category: form.category.trim(),
       isVeg: form.isVeg, isAvailable: form.isAvailable,
+    }
+
+    if (form.priceMode === 'single') {
+      if (form.price === '' || Number(form.price) < 0) return setError('Enter a valid price.')
+      payload.hasVariants = false
+      payload.price = Number(form.price)
+      payload.variants = []
+    } else {
+      if (form.variants.some(v => v.price === '' || Number(v.price) < 0)) {
+        return setError('Every price option needs a valid price. (A name is optional.)')
+      }
+      payload.hasVariants = true
+      payload.variants = form.variants.map(v => ({ name: v.name.trim(), price: Number(v.price) }))
     }
 
     try {
@@ -62,6 +93,12 @@ export default function AdminMenu() {
     } catch (err) {
       alert('Could not delete this item.')
     }
+  }
+
+  const priceDisplay = (item) => {
+    if (!item.hasVariants) return `₹${money(item.price)}`
+    const min = Math.min(...item.variants.map(v => v.price))
+    return `From ₹${money(min)} (${item.variants.length} options)`
   }
 
   const saving = createItem.isPending || updateItem.isPending
@@ -103,7 +140,7 @@ export default function AdminMenu() {
                     {item.name}
                   </div>
                 </td>
-                <td className="py-4 px-4 font-medium">₹{money(item.price)}</td>
+                <td className="py-4 px-4 font-medium">{priceDisplay(item)}</td>
                 <td className="py-4 px-4 text-gray-600 capitalize">{item.category}</td>
                 <td className="py-4 pl-4 text-right space-x-3">
                   <button onClick={() => openEdit(item)} className="text-primary hover:underline font-medium text-sm">Edit</button>
@@ -130,18 +167,59 @@ export default function AdminMenu() {
                 <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Base Price (₹) *</label>
-                  <input type="number" min="0" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Category *</label>
-                  <input type="text" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="e.g. Snacks"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-                </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Category *</label>
+                <input type="text" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="e.g. Snacks"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-2">Pricing</label>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <button type="button" onClick={() => setForm({ ...form, priceMode: 'single' })}
+                    className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'single' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                    Single Price
+                  </button>
+                  <button type="button" onClick={() => setForm({ ...form, priceMode: 'multiple' })}
+                    className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'multiple' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                    Multiple Prices
+                  </button>
+                </div>
+
+                {form.priceMode === 'single' ? (
+                  <input type="number" min="0" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
+                    placeholder="Price (₹)"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+                ) : (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">How many price options?</label>
+                      <select value={form.variantCount} onChange={e => setForm({ ...form, variantCount: Number(e.target.value) })}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        {[2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} options</option>)}
+                      </select>
+                    </div>
+                    {form.variants.map((v, idx) => (
+                      <div key={idx} className="grid grid-cols-2 gap-2">
+                        <input type="text" value={v.name} placeholder="Name (optional) e.g. Quarter"
+                          onChange={e => {
+                            const variants = [...form.variants]; variants[idx] = { ...variants[idx], name: e.target.value }
+                            setForm({ ...form, variants })
+                          }}
+                          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <input type="number" min="0" value={v.price} placeholder="Price (₹) *"
+                          onChange={e => {
+                            const variants = [...form.variants]; variants[idx] = { ...variants[idx], price: e.target.value }
+                            setForm({ ...form, variants })
+                          }}
+                          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-6">
                 <label className="flex items-center gap-2 text-sm text-gray-600">
                   <input type="checkbox" checked={form.isVeg} onChange={e => setForm({ ...form, isVeg: e.target.checked })} /> Vegetarian

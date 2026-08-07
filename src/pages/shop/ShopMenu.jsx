@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useOwnerMenu, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem } from '../../api/queries'
 import { money } from '../../utils/money'
 
-const emptyForm = { name: '', price: '', category: '', isVeg: true, isAvailable: true }
+const emptyForm = { name: '', category: '', isVeg: true, isAvailable: true, priceMode: 'single', price: '', variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }] }
 
 export default function ShopMenu() {
   const { data: menuItems } = useOwnerMenu()
@@ -15,19 +15,36 @@ export default function ShopMenu() {
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
 
+  // Keep the visible variant rows in sync with the chosen count, preserving what's typed.
+  useEffect(() => {
+    setForm(f => {
+      const rows = [...f.variants]
+      while (rows.length < f.variantCount) rows.push({ name: '', price: '' })
+      while (rows.length > f.variantCount) rows.pop()
+      return { ...f, variants: rows }
+    })
+  }, [form.variantCount])
+
   const openAdd = () => {
     setEditingId(null); setForm(emptyForm); setError(''); setModalOpen(true)
   }
 
   const openEdit = (item) => {
     setEditingId(item._id)
-    setForm({
-      name: item.name || '',
-      price: item.price ?? '',
-      category: item.category || '',
-      isVeg: item.isVeg ?? true,
-      isAvailable: item.isAvailable ?? true,
-    })
+    if (item.hasVariants) {
+      setForm({
+        name: item.name || '', category: item.category || '', isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
+        priceMode: 'multiple', price: '',
+        variantCount: item.variants.length,
+        variants: item.variants.map(v => ({ name: v.name || '', price: String(v.price), _id: v._id })),
+      })
+    } else {
+      setForm({
+        name: item.name || '', category: item.category || '', isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
+        priceMode: 'single', price: item.price ?? '',
+        variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }],
+      })
+    }
     setError('')
     setModalOpen(true)
   }
@@ -36,15 +53,26 @@ export default function ShopMenu() {
     e.preventDefault()
     setError('')
     if (!form.name.trim()) return setError('Item name is required.')
-    if (form.price === '' || Number(form.price) < 0) return setError('Enter a valid price.')
     if (!form.category.trim()) return setError('Category is required.')
 
-    const payload = {
+    let payload = {
       name: form.name.trim(),
-      price: Number(form.price),
       category: form.category.trim(),
       isVeg: form.isVeg,
       isAvailable: form.isAvailable,
+    }
+
+    if (form.priceMode === 'single') {
+      if (form.price === '' || Number(form.price) < 0) return setError('Enter a valid price.')
+      payload.hasVariants = false
+      payload.price = Number(form.price)
+      payload.variants = []
+    } else {
+      if (form.variants.some(v => v.price === '' || Number(v.price) < 0)) {
+        return setError('Every price option needs a valid price. (A name is optional.)')
+      }
+      payload.hasVariants = true
+      payload.variants = form.variants.map(v => ({ name: v.name.trim(), price: Number(v.price) }))
     }
 
     try {
@@ -73,6 +101,12 @@ export default function ShopMenu() {
     }
   }
 
+  const priceDisplay = (item) => {
+    if (!item.hasVariants) return `₹${money(item.price)}`
+    const min = Math.min(...item.variants.map(v => v.price))
+    return `From ₹${money(min)} (${item.variants.length} options)`
+  }
+
   const saving = createItem.isPending || updateItem.isPending
 
   return (
@@ -93,7 +127,7 @@ export default function ShopMenu() {
           <thead>
             <tr className="text-left text-sm font-medium text-gray-500 border-b border-gray-100">
               <th className="pb-3 pr-4">Item Name</th>
-              <th className="pb-3 px-4">Your Price</th>
+              <th className="pb-3 px-4">Price</th>
               <th className="pb-3 px-4">Category</th>
               <th className="pb-3 px-4">Available</th>
               <th className="pb-3 pl-4 text-right">Actions</th>
@@ -108,7 +142,7 @@ export default function ShopMenu() {
                     {item.name}
                   </div>
                 </td>
-                <td className="py-4 px-4 font-medium">₹{money(item.price)}</td>
+                <td className="py-4 px-4 font-medium">{priceDisplay(item)}</td>
                 <td className="py-4 px-4 text-gray-600 capitalize">{item.category}</td>
                 <td className="py-4 px-4">
                   <button
@@ -143,18 +177,57 @@ export default function ShopMenu() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Your Price (₹) *</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Category *</label>
+                <input type="text" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
+                  placeholder="e.g. Snacks"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-2">Pricing</label>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <button type="button" onClick={() => setForm({ ...form, priceMode: 'single' })}
+                    className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'single' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                    Single Price
+                  </button>
+                  <button type="button" onClick={() => setForm({ ...form, priceMode: 'multiple' })}
+                    className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'multiple' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                    Multiple Prices
+                  </button>
+                </div>
+
+                {form.priceMode === 'single' ? (
                   <input type="number" min="0" step="1" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
+                    placeholder="Price (₹)"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Category *</label>
-                  <input type="text" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
-                    placeholder="e.g. Snacks"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-                </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">How many price options?</label>
+                      <select value={form.variantCount} onChange={e => setForm({ ...form, variantCount: Number(e.target.value) })}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        {[2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} options</option>)}
+                      </select>
+                    </div>
+                    {form.variants.map((v, idx) => (
+                      <div key={idx} className="grid grid-cols-2 gap-2">
+                        <input type="text" value={v.name} placeholder={`Name (optional) e.g. Quarter`}
+                          onChange={e => {
+                            const variants = [...form.variants]; variants[idx] = { ...variants[idx], name: e.target.value }
+                            setForm({ ...form, variants })
+                          }}
+                          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                        <input type="number" min="0" step="1" value={v.price} placeholder="Price (₹) *"
+                          onChange={e => {
+                            const variants = [...form.variants]; variants[idx] = { ...variants[idx], price: e.target.value }
+                            setForm({ ...form, variants })
+                          }}
+                          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-6">

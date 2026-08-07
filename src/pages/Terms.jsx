@@ -24,15 +24,21 @@ export default function Terms() {
 
       <h2>3. Orders and payment</h2>
       <p>
-        Prices shown on the menu include a platform surcharge (currently displayed at checkout and on the login
-        page) to cover payment processing, plus a flat service fee charged per order. Both amounts may change
-        over time; the current amounts are always shown before you complete an order. At present, orders are
-        paid via Cash on Delivery or UPI, arranged directly with the shop. If online payment (e.g. Razorpay) is
-        introduced later, these Terms will be updated to reflect it.
+        Menu prices are the shop's own prices — nothing is added to them. At checkout, a flat service fee and a
+        payment-processing charge are added as separate, clearly shown line items on top of the food price. Both
+        amounts may change over time; the current amounts are always shown before you complete an order. Orders
+        can be paid via Cash on Delivery or online (card, UPI, or netbanking through Razorpay).
       </p>
       <p>
         Once placed, an order is a commitment to pay the shop for the items ordered. Cancellations after a shop
         has accepted the order may not be possible — check the order status before assuming you can cancel.
+      </p>
+      <h2>3a. Refunds</h2>
+      <p>
+        If an online payment is captured but the order is later cancelled (by the shop, or because it could not
+        be fulfilled), the amount is refunded to the original payment method through Razorpay. Refunds typically
+        take 5-7 business days to reflect, depending on your bank. If a payment is deducted but no order appears
+        in your account, contact Support with the payment reference so it can be investigated.
       </p>
 
       <h2>4. Shop responsibilities</h2>

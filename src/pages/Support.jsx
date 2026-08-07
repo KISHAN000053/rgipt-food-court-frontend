@@ -1,14 +1,26 @@
 import React from 'react'
-import { MessageCircle, Mail, HelpCircle } from 'lucide-react'
+import { MessageCircle, Mail, HelpCircle, Users } from 'lucide-react'
 
 const faqs = [
   {
     q: 'My order status hasn\'t updated in a while — what do I do?',
-    a: 'Shop status updates can occasionally lag. If it\'s been more than 20-30 minutes past the estimated prep time, contact the shop directly or reach out below.'
+    a: 'Shop status updates can occasionally lag. If it\'s been more than 20-30 minutes past the estimated prep time, contact the shop directly or reach out below with your order number.'
   },
   {
-    q: 'I was charged the wrong amount.',
-    a: 'Menu prices include a small payment-processing surcharge and a flat per-order service fee, both shown at checkout and on the login page. If the total still looks wrong, let us know the order number below.'
+    q: 'What am I actually being charged, beyond the food price?',
+    a: 'Menu prices are the shop\'s real prices — nothing is added to them. At checkout, two separate charges are added on top: a small flat service fee, and a payment-processing percentage. Both are shown as their own line before you confirm the order, so you always see exactly what you\'re paying and why.'
+  },
+  {
+    q: 'I paid online but my order still shows as pending.',
+    a: 'Online payments are confirmed automatically once your bank/UPI confirms the transaction — this is usually instant but can occasionally take a minute. If it\'s been longer than that and money left your account, contact us with your order number and we\'ll look into it.'
+  },
+  {
+    q: 'Can I get my food delivered to my hostel room?',
+    a: 'Yes — hostel delivery is available at checkout alongside takeaway. Make sure your hostel and room number are set in your Profile first, or you won\'t be able to select delivery.'
+  },
+  {
+    q: 'What\'s a Party Order?',
+    a: 'One person creates a party room and shares a code or link with friends. Everyone adds what they want under their own name, and the host pays once at the end — the shop receives it as a single order.'
   },
   {
     q: 'How do I become a shop owner on the platform?',
@@ -40,6 +52,17 @@ export default function Support() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-3">
+        <h2 className="font-semibold text-secondary flex items-center gap-2">
+          <Users className="w-5 h-5 text-primary" /> About this platform
+        </h2>
+        <p className="text-gray-500 text-sm">
+          RGIPT Food Court is a student-built ordering system connecting campus shops with hostellers,
+          especially for the hours after the hostel gates close. Shops set and keep their own prices;
+          the platform's only revenue is the small service and processing fees shown at checkout.
+        </p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-3">
