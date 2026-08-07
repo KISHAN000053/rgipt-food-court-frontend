@@ -44,6 +44,9 @@ export default function OrderDetail() {
               <p className="text-gray-500">{order.shop?.name}</p>
             </div>
             <OrderStatusBadge status={order.status} orderType={order.orderType} />
+            {order.paymentMethod === 'razorpay' && order.paymentStatus !== 'paid' && (
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Payment pending</span>
+            )}
           </div>
           
           <div className="flex items-center gap-2 text-sm text-gray-500">

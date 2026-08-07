@@ -80,6 +80,9 @@ function OrderGroupCard({ group }) {
           <div className="flex items-center gap-3 mb-1">
             <h3 className="font-bold text-secondary">{order.shop?.name || 'Shop'}</h3>
             <OrderStatusBadge status={order.status} orderType={order.orderType} />
+            {order.paymentMethod === 'razorpay' && order.paymentStatus !== 'paid' && (
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Payment pending</span>
+            )}
           </div>
           <p className="text-gray-500 text-sm mb-2">Order #{order._id.slice(-6).toUpperCase()}</p>
           <p className="font-medium text-secondary">₹{money(order.total)} • {order.items.length} items</p>
@@ -113,6 +116,9 @@ function OrderGroupCard({ group }) {
             <div className="flex items-center gap-3 mb-1">
               <h3 className="font-medium text-secondary">{order.shop?.name || 'Shop'}</h3>
               <OrderStatusBadge status={order.status} orderType={order.orderType} />
+            {order.paymentMethod === 'razorpay' && order.paymentStatus !== 'paid' && (
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Payment pending</span>
+            )}
             </div>
             <p className="text-gray-500 text-sm">{order.items.length} items • ₹{money(order.total)}</p>
           </div>
