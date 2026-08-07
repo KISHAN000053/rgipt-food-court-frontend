@@ -22,6 +22,16 @@ export default function AdminShops() {
     }
   }
 
+  const toggleMenuEditing = async (shop) => {
+    const nowAllowed = shop.menuEditingEnabled === false // i.e. we're about to turn it back on
+    if (!nowAllowed && !window.confirm(`Restrict ${shop.name} from adding, removing, or repricing menu items? They can still mark items in/out of stock.`)) return
+    try {
+      await updateShop.mutateAsync({ id: shop._id, data: { menuEditingEnabled: shop.menuEditingEnabled === false } })
+    } catch (err) {
+      alert('Could not update menu editing permission.')
+    }
+  }
+
   const handleDelete = async (shop) => {
     if (!window.confirm(`Mark "${shop.name}" as inactive? It will be hidden from students.`)) return
     try {
@@ -101,6 +111,7 @@ export default function AdminShops() {
               <th className="pb-3 pr-4">Shop Name</th>
               <th className="pb-3 px-4">Owner</th>
               <th className="pb-3 px-4">Status</th>
+              <th className="pb-3 px-4">Menu Editing</th>
               <th className="pb-3 pl-4 text-right">Actions</th>
             </tr>
           </thead>
@@ -123,6 +134,14 @@ export default function AdminShops() {
                     </button>
                   )}
                 </td>
+                <td className="py-4 px-4">
+                  <button
+                    onClick={() => toggleMenuEditing(shop)}
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${shop.menuEditingEnabled !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                  >
+                    {shop.menuEditingEnabled !== false ? 'Allowed' : 'Restricted'}
+                  </button>
+                </td>
                 <td className="py-4 pl-4 text-right space-x-3">
                   <button onClick={() => openEdit(shop)} className="text-primary hover:underline font-medium text-sm">Edit</button>
                   <button onClick={() => handleDelete(shop)} className="text-red-500 hover:underline font-medium text-sm">Delete</button>
@@ -130,7 +149,7 @@ export default function AdminShops() {
               </tr>
             ))}
             {shops?.length === 0 && (
-              <tr><td colSpan={4} className="py-8 text-center text-gray-400">No shops yet. Click "Add Shop" to create one.</td></tr>
+              <tr><td colSpan={5} className="py-8 text-center text-gray-400">No shops yet. Click "Add Shop" to create one.</td></tr>
             )}
           </tbody>
         </table>

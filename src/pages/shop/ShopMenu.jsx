@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { useOwnerMenu, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem } from '../../api/queries'
+import { useOwnerMenu, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, useMyShop } from '../../api/queries'
 import { money } from '../../utils/money'
 
 const emptyForm = { name: '', category: '', isVeg: true, isAvailable: true, priceMode: 'single', price: '', variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }] }
 
 export default function ShopMenu() {
   const { data: menuItems } = useOwnerMenu()
+  const { data: shop } = useMyShop()
+  const restricted = shop?.menuEditingEnabled === false
   const createItem = useCreateMenuItem()
   const updateItem = useUpdateMenuItem()
   const deleteItem = useDeleteMenuItem()
@@ -113,7 +115,7 @@ export default function ShopMenu() {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-xl font-bold text-secondary">My Menu</h1>
-        <button onClick={openAdd} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition">
+        <button onClick={openAdd} disabled={restricted} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition disabled:opacity-50 disabled:cursor-not-allowed">
           Add Item
         </button>
       </div>
@@ -121,6 +123,12 @@ export default function ShopMenu() {
         Set your own price here — this is exactly what students see and what you get paid.
         Platform fees are added separately at checkout and don't come out of your earnings.
       </p>
+      {restricted && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3 mb-6">
+          Menu editing has been restricted by admin. You can still mark items in or out of stock — for anything
+          else, contact admin.
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -153,8 +161,14 @@ export default function ShopMenu() {
                   </button>
                 </td>
                 <td className="py-4 pl-4 text-right space-x-3">
-                  <button onClick={() => openEdit(item)} className="text-primary hover:underline font-medium text-sm">Edit</button>
-                  <button onClick={() => handleDelete(item)} className="text-red-500 hover:underline font-medium text-sm">Delete</button>
+                  {restricted ? (
+                    <span className="text-gray-300 text-sm">Locked</span>
+                  ) : (
+                    <>
+                      <button onClick={() => openEdit(item)} className="text-primary hover:underline font-medium text-sm">Edit</button>
+                      <button onClick={() => handleDelete(item)} className="text-red-500 hover:underline font-medium text-sm">Delete</button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
