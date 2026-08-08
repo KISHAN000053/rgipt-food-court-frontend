@@ -96,15 +96,19 @@ export default function App() {
         
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<LayoutWrapper><Onboarding /></LayoutWrapper>} />
-          
+          {/* Profile and Support are for everyone — students, shop owners, and admins —
+              so they live outside the student-only RequireOnboarded gate below. Without
+              this, clicking Profile/Support as a shop owner or admin just bounced you
+              straight back to your own dashboard. */}
+          <Route path="/profile" element={<LayoutWrapper><Profile /></LayoutWrapper>} />
+          <Route path="/support" element={<LayoutWrapper><Support /></LayoutWrapper>} />
+
           <Route element={<RequireOnboarded><Outlet /></RequireOnboarded>}>
             <Route path="/home" element={<LayoutWrapper><Home /></LayoutWrapper>} />
             <Route path="/shops/:id/menu" element={<LayoutWrapper><Menu /></LayoutWrapper>} />
             <Route path="/cart" element={<LayoutWrapper><Cart /></LayoutWrapper>} />
             <Route path="/orders" element={<LayoutWrapper><Orders /></LayoutWrapper>} />
             <Route path="/orders/:id" element={<LayoutWrapper><OrderDetail /></LayoutWrapper>} />
-            <Route path="/profile" element={<LayoutWrapper><Profile /></LayoutWrapper>} />
-            <Route path="/support" element={<LayoutWrapper><Support /></LayoutWrapper>} />
             <Route path="/party" element={<LayoutWrapper><Party /></LayoutWrapper>} />
             <Route path="/party/:code" element={<LayoutWrapper><PartyRoom /></LayoutWrapper>} />
           </Route>

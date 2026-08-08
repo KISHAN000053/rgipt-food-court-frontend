@@ -139,7 +139,7 @@ export default function CartDrawer({ onClose }) {
                   {group.items.map(item => (
                     <div key={item.menuItemId} className="flex justify-between items-center p-3 border-b border-gray-50 last:border-0">
                       <div className="flex-1">
-                        <h4 className="font-medium text-secondary text-sm">{item.name}{item.variantName ? ` (${item.variantName})` : ''}</h4>
+                        <h4 className="font-medium text-secondary text-sm">{item.name}{item.variantName ? ` (${item.variantName})` : ''}{item.isAddon ? ' · Add-on' : ''}</h4>
                         <span className="text-primary font-medium text-sm">₹{money(item.price)}</span>
                       </div>
                       <div className="flex items-center gap-3">

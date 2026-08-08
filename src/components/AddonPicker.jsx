@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import { X, Plus } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
+import { useAddPartyItem } from '../api/queries'
 import { money } from '../utils/money'
 
-export default function AddonPicker({ shop, addons, onClose }) {
+export default function AddonPicker({ shop, addons, onClose, partyCode }) {
   const { items, addItem } = useCart()
+  const addPartyItem = useAddPartyItem()
   const [selected, setSelected] = useState({}) // addonId -> quantity
+  const [error, setError] = useState('')
 
   const cartFromThisShop = items.filter(i => i.shopId === shop._id && !i.isAddon)
 
@@ -24,11 +27,27 @@ export default function AddonPicker({ shop, addons, onClose }) {
     return sum + (addon ? addon.price * q : 0)
   }, 0)
 
-  const handleAddAll = () => {
-    for (const [addonId, qty] of Object.entries(selected)) {
+  const handleAddAll = async () => {
+    setError('')
+    const entries = Object.entries(selected).filter(([, qty]) => qty > 0)
+
+    if (partyCode) {
+      // Party mode: each selected add-on goes to the room, under this guest's name.
+      try {
+        for (const [addonId, qty] of entries) {
+          await addPartyItem.mutateAsync({ code: partyCode, menuItemId: addonId, quantity: qty })
+        }
+        onClose()
+      } catch (err) {
+        setError(err.response?.data?.message || 'Could not add those extras to the party.')
+      }
+      return
+    }
+
+    for (const [addonId, qty] of entries) {
       const addon = addons.find(a => a._id === addonId)
-      if (addon && qty > 0) {
-        addItem({ _id: addon._id, shopId: shop._id, shopName: shop.name, name: addon.name, price: addon.price }, qty)
+      if (addon) {
+        addItem({ _id: addon._id, shopId: shop._id, shopName: shop.name, name: addon.name, price: addon.price, isAddon: true }, qty)
       }
     }
     onClose()
@@ -49,8 +68,14 @@ export default function AddonPicker({ shop, addons, onClose }) {
 
         <div className="overflow-y-auto flex-1 p-5 space-y-5">
           <div>
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">In your cart</p>
-            {cartFromThisShop.length === 0 ? (
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+              {partyCode ? 'Adding to party' : 'In your cart'}
+            </p>
+            {partyCode ? (
+              <p className="text-sm text-gray-400">
+                Extras you pick here go to party <span className="font-mono font-medium text-secondary">{partyCode}</span> under your name.
+              </p>
+            ) : cartFromThisShop.length === 0 ? (
               <p className="text-sm text-gray-400">Nothing from {shop.name} yet — you can still add extras, they'll ride along at checkout.</p>
             ) : (
               <div className="space-y-1">
@@ -95,12 +120,17 @@ export default function AddonPicker({ shop, addons, onClose }) {
         </div>
 
         <div className="p-5 border-t border-gray-100">
+          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
           <button
             onClick={handleAddAll}
-            disabled={selectedCount === 0}
+            disabled={selectedCount === 0 || addPartyItem.isPending}
             className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition disabled:opacity-50"
           >
-            {selectedCount === 0 ? 'Select add-ons above' : `Add ${selectedCount} to Cart · ₹${money(selectedTotal)}`}
+            {addPartyItem.isPending
+              ? 'Adding...'
+              : selectedCount === 0
+                ? 'Select add-ons above'
+                : `Add ${selectedCount} to ${partyCode ? 'Party' : 'Cart'} · ₹${money(selectedTotal)}`}
           </button>
         </div>
       </div>

@@ -30,6 +30,7 @@ export const CartProvider = ({ children }) => {
         menuItemId: item._id,
         variantId: item.variantId || undefined,
         variantName: item.variantName || undefined,
+        isAddon: item.isAddon || undefined,
         shopId: item.shopId,
         shopName: item.shopName,
         name: item.name,
