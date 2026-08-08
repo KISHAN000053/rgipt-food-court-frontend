@@ -22,6 +22,15 @@ export default function AdminShops() {
     }
   }
 
+  const reactivateShop = async (shop) => {
+    if (!window.confirm(`Reactivate ${shop.name}? It will become visible and open for students again.`)) return
+    try {
+      await updateShop.mutateAsync({ id: shop._id, data: { isPermanentlyClosed: false, isOpen: true } })
+    } catch (err) {
+      alert('Could not reactivate this shop.')
+    }
+  }
+
   const toggleMenuEditing = async (shop) => {
     const nowAllowed = shop.menuEditingEnabled === false // i.e. we're about to turn it back on
     if (!nowAllowed && !window.confirm(`Restrict ${shop.name} from adding, removing, or repricing menu items? They can still mark items in/out of stock.`)) return
@@ -124,7 +133,12 @@ export default function AdminShops() {
                 </td>
                 <td className="py-4 px-4">
                   {shop.isPermanentlyClosed ? (
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Inactive</span>
+                    <button
+                      onClick={() => reactivateShop(shop)}
+                      className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition"
+                    >
+                      Inactive · Reactivate
+                    </button>
                   ) : (
                     <button
                       onClick={() => toggleOpen(shop)}

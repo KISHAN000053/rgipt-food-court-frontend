@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useMenu, useShops } from '../api/queries'
+import { useMenu, useShops, useShopAddons } from '../api/queries'
 import { useCart } from '../hooks/useCart'
 import MenuItemCard from '../components/MenuItemCard'
+import AddonPicker from '../components/AddonPicker'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import FilterBar from '../components/FilterBar'
 import EmptyState from '../components/ui/EmptyState'
-import { ArrowLeft, Utensils } from 'lucide-react'
+import { ArrowLeft, Utensils, PlusCircle } from 'lucide-react'
 import { money } from '../utils/money'
 
 export default function Menu() {
@@ -14,9 +15,11 @@ export default function Menu() {
   const navigate = useNavigate()
   const { data: items, isLoading: itemsLoading } = useMenu(id)
   const { data: shops, isLoading: shopsLoading } = useShops()
+  const { data: addons } = useShopAddons(id)
   const { itemCount, total } = useCart()
   
   const [activeFilter, setActiveFilter] = useState('all')
+  const [addonPickerOpen, setAddonPickerOpen] = useState(false)
 
   const shop = shops?.find(s => s._id === id)
 
@@ -80,6 +83,19 @@ export default function Menu() {
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
           <span className="font-medium">{shop.name} is currently closed.</span> You can browse the menu, but ordering is unavailable right now.
         </div>
+      )}
+
+      {shop.isOpen && addons?.length > 0 && (
+        <button
+          onClick={() => setAddonPickerOpen(true)}
+          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-primary/40 text-primary rounded-xl py-3 mb-6 font-medium hover:bg-primary/5 transition"
+        >
+          <PlusCircle className="w-5 h-5" /> Add extras — Egg, Cheese & more
+        </button>
+      )}
+
+      {addonPickerOpen && (
+        <AddonPicker shop={shop} addons={addons} onClose={() => setAddonPickerOpen(false)} />
       )}
 
       <div className="mb-6 sticky top-16 app-page z-10 py-2">

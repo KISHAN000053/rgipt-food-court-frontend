@@ -144,7 +144,7 @@ export default function PartyRoom() {
                 <div key={item._id} className="flex justify-between items-center px-4 py-3 border-b border-gray-50 last:border-0">
                   <div className="flex-1">
                     <p className="text-secondary text-sm">
-                      <span className="font-medium">{item.quantity}x</span> {item.name}{item.variantName ? ` (${item.variantName})` : ''}
+                      <span className="font-medium">{item.quantity}x</span> {item.name}{item.variantName ? ` (${item.variantName})` : ''}{item.isAddon ? ' · Add-on' : ''}
                     </p>
                     <p className="text-xs text-gray-400">{item.shopName}</p>
                   </div>

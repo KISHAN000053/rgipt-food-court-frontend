@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useOwnerMenu, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, useMyShop } from '../../api/queries'
 import { money } from '../../utils/money'
 
-const emptyForm = { name: '', category: '', isVeg: true, isAvailable: true, priceMode: 'single', price: '', variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }] }
+const emptyForm = { name: '', category: '', isVeg: true, isAvailable: true, isAddon: false, priceMode: 'single', price: '', variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }] }
 
 export default function ShopMenu() {
   const { data: menuItems } = useOwnerMenu()
@@ -36,6 +36,7 @@ export default function ShopMenu() {
     if (item.hasVariants) {
       setForm({
         name: item.name || '', category: item.category || '', isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
+        isAddon: item.isAddon || false,
         priceMode: 'multiple', price: '',
         variantCount: item.variants.length,
         variants: item.variants.map(v => ({ name: v.name || '', price: String(v.price), _id: v._id })),
@@ -43,6 +44,7 @@ export default function ShopMenu() {
     } else {
       setForm({
         name: item.name || '', category: item.category || '', isVeg: item.isVeg ?? true, isAvailable: item.isAvailable ?? true,
+        isAddon: item.isAddon || false,
         priceMode: 'single', price: item.price ?? '',
         variantCount: 2, variants: [{ name: '', price: '' }, { name: '', price: '' }],
       })
@@ -55,13 +57,14 @@ export default function ShopMenu() {
     e.preventDefault()
     setError('')
     if (!form.name.trim()) return setError('Item name is required.')
-    if (!form.category.trim()) return setError('Category is required.')
+    if (!form.isAddon && !form.category.trim()) return setError('Category is required.')
 
     let payload = {
       name: form.name.trim(),
-      category: form.category.trim(),
+      category: form.isAddon ? 'Add-ons' : form.category.trim(),
       isVeg: form.isVeg,
       isAvailable: form.isAvailable,
+      isAddon: form.isAddon,
     }
 
     if (form.priceMode === 'single') {
@@ -148,6 +151,9 @@ export default function ShopMenu() {
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${item.isVeg ? 'bg-green-500' : 'bg-red-500'}`}></div>
                     {item.name}
+                    {item.isAddon && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-600">Add-on</span>
+                    )}
                   </div>
                 </td>
                 <td className="py-4 px-4 font-medium">{priceDisplay(item)}</td>
@@ -191,25 +197,38 @@ export default function ShopMenu() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Category *</label>
-                <input type="text" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
-                  placeholder="e.g. Snacks"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
-              </div>
+              <label className="flex items-start gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+                <input type="checkbox" className="mt-0.5" checked={form.isAddon}
+                  onChange={e => setForm({ ...form, isAddon: e.target.checked, priceMode: 'single' })} />
+                <span>
+                  <span className="font-medium text-secondary block">This is an add-on</span>
+                  A simple extra like Egg, Cheese, or Chicken that students can add to their order — shown separately, not in the main menu.
+                </span>
+              </label>
+
+              {!form.isAddon && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Category *</label>
+                  <input type="text" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
+                    placeholder="e.g. Snacks"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-2">Pricing</label>
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <button type="button" onClick={() => setForm({ ...form, priceMode: 'single' })}
-                    className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'single' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
-                    Single Price
-                  </button>
-                  <button type="button" onClick={() => setForm({ ...form, priceMode: 'multiple' })}
-                    className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'multiple' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
-                    Multiple Prices
-                  </button>
-                </div>
+                {!form.isAddon && (
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <button type="button" onClick={() => setForm({ ...form, priceMode: 'single' })}
+                      className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'single' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                      Single Price
+                    </button>
+                    <button type="button" onClick={() => setForm({ ...form, priceMode: 'multiple' })}
+                      className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${form.priceMode === 'multiple' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                      Multiple Prices
+                    </button>
+                  </div>
+                )}
 
                 {form.priceMode === 'single' ? (
                   <input type="number" min="0" step="1" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}

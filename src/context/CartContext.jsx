@@ -18,12 +18,13 @@ export const CartProvider = ({ children }) => {
   }, [items])
 
   // item: { _id, shopId, shopName, name, price, variantId?, variantName? }
-  const addItem = (item) => {
+  // qty: how many to add in this call (default 1, used by the add-ons picker to add several at once)
+  const addItem = (item, qty = 1) => {
     setItems((prev) => {
       const key = lineKey(item._id, item.variantId)
       const existing = prev.find(i => lineKey(i.menuItemId, i.variantId) === key)
       if (existing) {
-        return prev.map(i => lineKey(i.menuItemId, i.variantId) === key ? { ...i, quantity: i.quantity + 1 } : i)
+        return prev.map(i => lineKey(i.menuItemId, i.variantId) === key ? { ...i, quantity: i.quantity + qty } : i)
       }
       return [...prev, {
         menuItemId: item._id,
@@ -33,7 +34,7 @@ export const CartProvider = ({ children }) => {
         shopName: item.shopName,
         name: item.name,
         price: item.price,
-        quantity: 1
+        quantity: qty
       }]
     })
   }

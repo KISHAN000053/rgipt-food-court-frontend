@@ -66,7 +66,7 @@ export default function OrderDetail() {
             {order.items.map((item, idx) => (
               <div key={idx} className="flex justify-between">
                 <div>
-                  <span className="font-medium">{item.quantity}x</span> {item.name}{item.variantName ? ` (${item.variantName})` : ''}
+                  <span className="font-medium">{item.quantity}x</span> {item.name}{item.variantName ? ` (${item.variantName})` : ''}{item.isAddon ? ' · Add-on' : ''}
                 </div>
                 <div className="text-secondary font-medium">₹{money(item.price * item.quantity)}</div>
               </div>
