@@ -52,8 +52,8 @@ export default function AdminPayouts() {
       </div>
 
       <p className="text-xs text-gray-400">
-        Cancelled orders are excluded. This reflects orders placed under Cash on Delivery — once online
-        payments are enabled, these same amounts become the actual transfer owed to each shop.
+        Cancelled orders and unpaid/abandoned online payments are excluded. These are the actual amounts
+        collected — since all orders are now paid online through Razorpay, this reflects real transfers owed to each shop.
       </p>
     </div>
   )

@@ -25,7 +25,7 @@ export default function CartDrawer({ onClose }) {
 
   const [checkoutMode, setCheckoutMode] = useState(false)
   const [orderType, setOrderType] = useState('hostel')
-  const [paymentMethod, setPaymentMethod] = useState('cash') // 'cash' | 'razorpay'
+  const paymentMethod = 'razorpay' // Cash on Delivery has been removed — all orders are paid online now.
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState('')
 
@@ -56,22 +56,15 @@ export default function CartDrawer({ onClose }) {
     setError('')
     setPaying(true)
     try {
-      // Step 1: always create the order first (status stays 'pending' for razorpay
-      // until payment is actually confirmed — never marked paid on trust alone).
+      // Step 1: always create the order first (status stays 'pending' until payment
+      // is actually confirmed — never marked paid on trust alone).
       const result = await placeOrder.mutateAsync({
         items: items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity, variantId: i.variantId })),
         orderType,
         paymentMethod,
       })
 
-      if (paymentMethod === 'cash') {
-        clearCart()
-        onClose()
-        navigate('/orders')
-        return
-      }
-
-      // Step 2: razorpay — create a Razorpay order for the group total, open checkout.
+      // Step 2: create a Razorpay order for the group total, open checkout.
       const groupId = result.groupId
       const rp = await createRazorpayOrder.mutateAsync({ groupId })
 
@@ -203,26 +196,8 @@ export default function CartDrawer({ onClose }) {
                   </div>
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                    <h4 className="font-medium mb-3">Payment Method</h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('cash')}
-                        className={`p-3 rounded-lg border-2 text-sm font-medium transition ${paymentMethod === 'cash' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
-                      >
-                        Cash on Delivery
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('razorpay')}
-                        className={`p-3 rounded-lg border-2 text-sm font-medium transition ${paymentMethod === 'razorpay' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
-                      >
-                        Pay Online
-                      </button>
-                    </div>
-                    {paymentMethod === 'razorpay' && (
-                      <p className="text-xs text-gray-400 mt-2">Card, UPI, or netbanking via Razorpay.</p>
-                    )}
+                    <h4 className="font-medium mb-1">Payment</h4>
+                    <p className="text-sm text-gray-500">Card, UPI, or netbanking via Razorpay — you'll be prompted to pay on the next step.</p>
                   </div>
                 </>
               )}
@@ -268,8 +243,8 @@ export default function CartDrawer({ onClose }) {
                 className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm disabled:opacity-50"
               >
                 {placeOrder.isPending || paying
-                  ? (paymentMethod === 'razorpay' ? 'Opening payment...' : 'Placing Order...')
-                  : paymentMethod === 'razorpay' ? `Pay ₹${money(grandTotal)}` : 'Place Order'}
+                  ? 'Opening payment...'
+                  : `Pay ₹${money(grandTotal)}`}
               </button>
             )}
           </div>

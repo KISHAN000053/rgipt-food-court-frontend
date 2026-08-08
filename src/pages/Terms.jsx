@@ -27,7 +27,7 @@ export default function Terms() {
         Menu prices are the shop's own prices — nothing is added to them. At checkout, a flat service fee and a
         payment-processing charge are added as separate, clearly shown line items on top of the food price. Both
         amounts may change over time; the current amounts are always shown before you complete an order. Orders
-        can be paid via Cash on Delivery or online (card, UPI, or netbanking through Razorpay).
+        can be paid via card, UPI, or netbanking through Razorpay.
       </p>
       <p>
         Once placed, an order is a commitment to pay the shop for the items ordered. Cancellations after a shop

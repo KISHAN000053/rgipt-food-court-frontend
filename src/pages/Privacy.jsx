@@ -18,8 +18,9 @@ export default function Privacy() {
 
       <h2>2. What we don't collect</h2>
       <p>
-        We do not store payment card numbers, UPI PINs, or bank credentials. Payment is currently handled
-        directly between you and the shop (Cash on Delivery or UPI) and does not pass through our servers.
+        We do not store payment card numbers, UPI PINs, or bank credentials. Payments are processed through
+        Razorpay — your card, UPI, or bank details are handled directly by Razorpay's secure systems and never
+        pass through or get stored on our servers.
       </p>
 
       <h2>3. How we use your data</h2>

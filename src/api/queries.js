@@ -14,7 +14,6 @@ export const usePlaceOrder = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders', 'my'] })
   })
 }
-export const useSearchMenu = (q) => useQuery({ queryKey: ['search', q], queryFn: () => api.get(`/menu/search?q=${q}`).then(r => r.data), enabled: q?.length > 1 })
 
 export const useOwnerOrders = () => useQuery({ queryKey: ['owner', 'orders'], queryFn: () => api.get('/owner/orders').then(r => r.data), refetchInterval: 30000 })
 export const useOwnerMenu = () => useQuery({ queryKey: ['owner', 'menu'], queryFn: () => api.get('/owner/menu').then(r => r.data) })

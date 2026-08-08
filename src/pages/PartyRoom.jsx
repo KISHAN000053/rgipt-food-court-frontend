@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { usePartyRoom, useRemovePartyItem, usePartyCheckout } from '../api/queries'
+import { usePartyRoom, useRemovePartyItem, usePartyCheckout, useCreateRazorpayOrder, useVerifyRazorpayPayment } from '../api/queries'
 import { useParty } from '../context/PartyContext'
 import { useAuth } from '../hooks/useAuth'
 import { Copy, Check, Trash2, Home, Store, Users, Plus, ArrowLeft } from 'lucide-react'
 import { money } from '../utils/money'
+import { openRazorpayCheckout } from '../utils/razorpay'
 
 export default function PartyRoom() {
   const { code } = useParams()
@@ -15,10 +16,13 @@ export default function PartyRoom() {
   const { data: room, isLoading, error } = usePartyRoom(code)
   const removeItem = useRemovePartyItem()
   const checkout = usePartyCheckout()
+  const createRazorpayOrder = useCreateRazorpayOrder()
+  const verifyRazorpayPayment = useVerifyRazorpayPayment()
 
   const [orderType, setOrderType] = useState('hostel')
   const [copied, setCopied] = useState(false)
   const [checkoutError, setCheckoutError] = useState('')
+  const [paying, setPaying] = useState(false)
 
   const shareLink = `${window.location.origin}/party/${code}`
 
@@ -52,12 +56,37 @@ export default function PartyRoom() {
 
   const handleCheckout = async () => {
     setCheckoutError('')
+    setPaying(true)
     try {
-      await checkout.mutateAsync({ code, orderType, paymentMethod: 'cash' })
-      stopShoppingForParty()
-      navigate('/orders')
+      // Places the order (locks the room) and pays online — same flow as normal checkout.
+      const result = await checkout.mutateAsync({ code, orderType, paymentMethod: 'razorpay' })
+      const groupId = result.groupId
+      const rp = await createRazorpayOrder.mutateAsync({ groupId })
+
+      openRazorpayCheckout({
+        keyId: rp.keyId,
+        orderId: rp.razorpayOrderId,
+        amount: rp.amount,
+        prefill: { name: user?.name, email: user?.email, contact: user?.phone },
+        onSuccess: async ({ razorpayOrderId, razorpayPaymentId, razorpaySignature }) => {
+          try {
+            await verifyRazorpayPayment.mutateAsync({ razorpayOrderId, razorpayPaymentId, razorpaySignature })
+            stopShoppingForParty()
+            navigate('/orders')
+          } catch (err) {
+            setCheckoutError('Payment succeeded but confirmation failed — check Orders in a minute, or contact Support if it doesn\'t update.')
+          } finally {
+            setPaying(false)
+          }
+        },
+        onDismiss: () => {
+          setPaying(false)
+          setCheckoutError('Payment cancelled. The party order is saved as pending — you can try paying again from Orders.')
+        },
+      })
     } catch (err) {
       setCheckoutError(err.response?.data?.message || 'Could not place the order. Please try again.')
+      setPaying(false)
     }
   }
 
@@ -228,10 +257,10 @@ export default function PartyRoom() {
 
           <button
             onClick={handleCheckout}
-            disabled={checkout.isPending || (orderType === 'hostel' && !user?.hostel)}
+            disabled={checkout.isPending || paying || (orderType === 'hostel' && !user?.hostel)}
             className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition disabled:opacity-50"
           >
-            {checkout.isPending ? 'Placing Order...' : `Place Party Order (₹${grandTotal.toFixed(2)})`}
+            {checkout.isPending || paying ? 'Opening payment...' : `Pay for Party Order (₹${grandTotal.toFixed(2)})`}
           </button>
           <p className="text-xs text-gray-400 text-center">
             Once placed, nobody can add more items to this party.
