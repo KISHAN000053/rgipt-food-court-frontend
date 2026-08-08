@@ -54,7 +54,7 @@ export default function ShopDashboard() {
               <div className="space-y-2 mb-4">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between text-sm">
-                    <span>{item.quantity}x {item.name}{item.variantName ? ` (${item.variantName})` : ''}{item.isAddon ? ' · Add-on' : ''}</span>
+                    <span>{item.quantity}x {item.name}{item.variantName ? ` (${item.variantName})` : ''}{item.isAddon ? (item.forProductName ? ` · for ${item.forProductName}` : ' · Add-on') : ''}</span>
                   </div>
                 ))}
               </div>

@@ -59,7 +59,7 @@ export default function CartDrawer({ onClose }) {
       // Step 1: always create the order first (status stays 'pending' until payment
       // is actually confirmed — never marked paid on trust alone).
       const result = await placeOrder.mutateAsync({
-        items: items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity, variantId: i.variantId })),
+        items: items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity, variantId: i.variantId, forProductName: i.forProductName })),
         orderType,
         paymentMethod,
       })
@@ -139,16 +139,16 @@ export default function CartDrawer({ onClose }) {
                   {group.items.map(item => (
                     <div key={item.menuItemId} className="flex justify-between items-center p-3 border-b border-gray-50 last:border-0">
                       <div className="flex-1">
-                        <h4 className="font-medium text-secondary text-sm">{item.name}{item.variantName ? ` (${item.variantName})` : ''}{item.isAddon ? ' · Add-on' : ''}</h4>
+                        <h4 className="font-medium text-secondary text-sm">{item.name}{item.variantName ? ` (${item.variantName})` : ''}{item.isAddon ? (item.forProductName ? ` · for ${item.forProductName}` : ' · Add-on') : ''}</h4>
                         <span className="text-primary font-medium text-sm">₹{money(item.price)}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg">
-                          <button onClick={() => updateQty(item.menuItemId, item.quantity - 1, item.variantId)} className="px-2 py-0.5 text-primary font-medium hover:bg-gray-100 rounded-l-lg">-</button>
+                          <button onClick={() => updateQty(item.menuItemId, item.quantity - 1, item.variantId, item.forProductName)} className="px-2 py-0.5 text-primary font-medium hover:bg-gray-100 rounded-l-lg">-</button>
                           <span className="px-2 font-medium text-sm">{item.quantity}</span>
-                          <button onClick={() => updateQty(item.menuItemId, item.quantity + 1, item.variantId)} className="px-2 py-0.5 text-primary font-medium hover:bg-gray-100 rounded-r-lg">+</button>
+                          <button onClick={() => updateQty(item.menuItemId, item.quantity + 1, item.variantId, item.forProductName)} className="px-2 py-0.5 text-primary font-medium hover:bg-gray-100 rounded-r-lg">+</button>
                         </div>
-                        <button onClick={() => updateQty(item.menuItemId, 0, item.variantId)} className="text-gray-400 hover:text-red-500 transition">
+                        <button onClick={() => updateQty(item.menuItemId, 0, item.variantId, item.forProductName)} className="text-gray-400 hover:text-red-500 transition">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

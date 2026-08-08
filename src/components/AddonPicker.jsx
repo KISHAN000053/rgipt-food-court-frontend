@@ -1,16 +1,61 @@
-import React, { useState } from 'react'
-import { X, Plus } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { X, Plus, ChevronLeft } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
-import { useAddPartyItem } from '../api/queries'
+import { useAddPartyItem, usePartyRoom } from '../api/queries'
 import { money } from '../utils/money'
 
+// Two-step flow: pick which product the add-ons are for, then pick the add-ons
+// themselves. After saving, it goes back to the product list so the student can
+// repeat for another item without reopening the picker.
 export default function AddonPicker({ shop, addons, onClose, partyCode }) {
   const { items, addItem } = useCart()
+  const { data: room } = usePartyRoom(partyCode) // only fetches when partyCode is set
   const addPartyItem = useAddPartyItem()
+
+  const [step, setStep] = useState('products') // 'products' | 'addons'
+  const [selectedProduct, setSelectedProduct] = useState(null) // { key, label }
   const [selected, setSelected] = useState({}) // addonId -> quantity
   const [error, setError] = useState('')
 
-  const cartFromThisShop = items.filter(i => i.shopId === shop._id && !i.isAddon)
+  // The list of real dishes (not add-ons) to choose from, from this shop.
+  const products = useMemo(() => {
+    if (partyCode) {
+      if (!room) return []
+      const rows = []
+      for (const person of room.participants) {
+        for (const item of person.items) {
+          if (item.shopName !== shop.name || item.isAddon) continue
+          rows.push({
+            key: `${item._id}`,
+            label: item.name + (item.variantName ? ` (${item.variantName})` : ''),
+            addedByName: person.name,
+            isMine: item.isMine,
+          })
+        }
+      }
+      return rows
+    }
+    return items
+      .filter(i => i.shopId === shop._id && !i.isAddon)
+      .map(i => ({
+        key: `${i.menuItemId}::${i.variantId || ''}`,
+        label: i.name + (i.variantName ? ` (${i.variantName})` : ''),
+      }))
+  }, [partyCode, room, items, shop])
+
+  const pickProduct = (product) => {
+    setSelectedProduct(product)
+    setSelected({})
+    setError('')
+    setStep('addons')
+  }
+
+  const backToProducts = () => {
+    setStep('products')
+    setSelectedProduct(null)
+    setSelected({})
+    setError('')
+  }
 
   const setQty = (addonId, qty) => {
     setSelected(prev => {
@@ -27,17 +72,17 @@ export default function AddonPicker({ shop, addons, onClose, partyCode }) {
     return sum + (addon ? addon.price * q : 0)
   }, 0)
 
-  const handleAddAll = async () => {
+  const handleSave = async () => {
     setError('')
     const entries = Object.entries(selected).filter(([, qty]) => qty > 0)
+    const forProductName = selectedProduct.label
 
     if (partyCode) {
-      // Party mode: each selected add-on goes to the room, under this guest's name.
       try {
         for (const [addonId, qty] of entries) {
-          await addPartyItem.mutateAsync({ code: partyCode, menuItemId: addonId, quantity: qty })
+          await addPartyItem.mutateAsync({ code: partyCode, menuItemId: addonId, quantity: qty, forProductName })
         }
-        onClose()
+        backToProducts()
       } catch (err) {
         setError(err.response?.data?.message || 'Could not add those extras to the party.')
       }
@@ -47,92 +92,110 @@ export default function AddonPicker({ shop, addons, onClose, partyCode }) {
     for (const [addonId, qty] of entries) {
       const addon = addons.find(a => a._id === addonId)
       if (addon) {
-        addItem({ _id: addon._id, shopId: shop._id, shopName: shop.name, name: addon.name, price: addon.price, isAddon: true }, qty)
+        addItem({ _id: addon._id, shopId: shop._id, shopName: shop.name, name: addon.name, price: addon.price, isAddon: true, forProductName }, qty)
       }
     }
-    onClose()
+    backToProducts()
   }
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center p-5 border-b border-gray-100">
-          <div>
-            <h2 className="text-lg font-bold text-secondary">Add-ons</h2>
-            <p className="text-sm text-gray-500">for {shop.name}</p>
+          <div className="flex items-center gap-2">
+            {step === 'addons' && (
+              <button onClick={backToProducts} className="text-gray-400 hover:text-secondary -ml-1">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <div>
+              <h2 className="text-lg font-bold text-secondary">
+                {step === 'products' ? 'Add extras' : `Extras for ${selectedProduct?.label}`}
+              </h2>
+              <p className="text-sm text-gray-500">{shop.name}</p>
+            </div>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-secondary">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 p-5 space-y-5">
-          <div>
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-              {partyCode ? 'Adding to party' : 'In your cart'}
+        {step === 'products' ? (
+          <div className="overflow-y-auto flex-1 p-5">
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              Which item are these extras for?
             </p>
-            {partyCode ? (
+            {products.length === 0 ? (
               <p className="text-sm text-gray-400">
-                Extras you pick here go to party <span className="font-mono font-medium text-secondary">{partyCode}</span> under your name.
+                {partyCode
+                  ? `Nobody's added anything from ${shop.name} to the party yet — add a dish first, then come back to add extras to it.`
+                  : `Add a dish from ${shop.name} to your cart first, then come back to add extras to it.`}
               </p>
-            ) : cartFromThisShop.length === 0 ? (
-              <p className="text-sm text-gray-400">Nothing from {shop.name} yet — you can still add extras, they'll ride along at checkout.</p>
             ) : (
-              <div className="space-y-1">
-                {cartFromThisShop.map(item => (
-                  <p key={`${item.menuItemId}-${item.variantId || ''}`} className="text-sm text-secondary">
-                    {item.quantity}x {item.name}{item.variantName ? ` (${item.variantName})` : ''}
-                  </p>
+              <div className="space-y-2">
+                {products.map(p => (
+                  <button
+                    key={p.key}
+                    onClick={() => pickProduct(p)}
+                    className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
+                  >
+                    <span className="text-sm text-secondary font-medium">{p.label}</span>
+                    {p.addedByName && !p.isMine && (
+                      <span className="text-xs text-gray-400">by {p.addedByName}</span>
+                    )}
+                  </button>
                 ))}
               </div>
             )}
           </div>
-
-          <div>
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Pick your add-ons</p>
-            <div className="space-y-2">
-              {addons.map(addon => {
-                const qty = selected[addon._id] || 0
-                return (
-                  <div key={addon._id} className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-secondary">
-                      {addon.name} <span className="text-gray-400">· ₹{money(addon.price)}</span>
-                    </span>
-                    {qty > 0 ? (
-                      <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg">
-                        <button onClick={() => setQty(addon._id, qty - 1)} className="px-3 py-1 text-primary hover:bg-gray-100 font-medium rounded-l-lg">-</button>
-                        <span className="px-2 font-medium">{qty}</span>
-                        <button onClick={() => setQty(addon._id, qty + 1)} className="px-3 py-1 text-primary hover:bg-gray-100 font-medium rounded-r-lg">+</button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setQty(addon._id, 1)}
-                        className="px-4 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white transition font-medium rounded-lg text-sm"
-                      >
-                        <Plus className="w-3.5 h-3.5 inline -mt-0.5" /> Select
-                      </button>
-                    )}
-                  </div>
-                )
-              })}
+        ) : (
+          <>
+            <div className="overflow-y-auto flex-1 p-5">
+              <div className="space-y-2">
+                {addons.map(addon => {
+                  const qty = selected[addon._id] || 0
+                  return (
+                    <div key={addon._id} className="flex items-center justify-between py-1.5">
+                      <span className="text-sm text-secondary">
+                        {addon.name} <span className="text-gray-400">· ₹{money(addon.price)}</span>
+                      </span>
+                      {qty > 0 ? (
+                        <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg">
+                          <button onClick={() => setQty(addon._id, qty - 1)} className="px-3 py-1 text-primary hover:bg-gray-100 font-medium rounded-l-lg">-</button>
+                          <span className="px-2 font-medium">{qty}</span>
+                          <button onClick={() => setQty(addon._id, qty + 1)} className="px-3 py-1 text-primary hover:bg-gray-100 font-medium rounded-r-lg">+</button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setQty(addon._id, 1)}
+                          className="px-4 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white transition font-medium rounded-lg text-sm"
+                        >
+                          <Plus className="w-3.5 h-3.5 inline -mt-0.5" /> Select
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="p-5 border-t border-gray-100">
-          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-          <button
-            onClick={handleAddAll}
-            disabled={selectedCount === 0 || addPartyItem.isPending}
-            className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition disabled:opacity-50"
-          >
-            {addPartyItem.isPending
-              ? 'Adding...'
-              : selectedCount === 0
-                ? 'Select add-ons above'
-                : `Add ${selectedCount} to ${partyCode ? 'Party' : 'Cart'} · ₹${money(selectedTotal)}`}
-          </button>
-        </div>
+            <div className="p-5 border-t border-gray-100">
+              {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+              <button
+                onClick={handleSave}
+                disabled={selectedCount === 0 || addPartyItem.isPending}
+                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition disabled:opacity-50"
+              >
+                {addPartyItem.isPending
+                  ? 'Saving...'
+                  : selectedCount === 0
+                    ? 'Select add-ons above'
+                    : `Save ${selectedCount} for ${selectedProduct?.label} · ₹${money(selectedTotal)}`}
+              </button>
+              <p className="text-xs text-gray-400 text-center mt-2">You'll come back here to add extras to another item.</p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
