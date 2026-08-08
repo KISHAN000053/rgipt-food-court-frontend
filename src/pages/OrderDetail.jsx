@@ -53,6 +53,19 @@ export default function OrderDetail() {
             <Clock className="w-4 h-4" />
             {new Date(order.createdAt).toLocaleString()}
           </div>
+
+          {order.status === 'cancelled' && order.paymentMethod === 'razorpay' && order.paymentStatus === 'paid' && (
+            <div className={`mt-3 text-sm rounded-lg px-3 py-2 ${
+              order.refundStatus === 'completed' ? 'bg-green-50 text-green-700' :
+              order.refundStatus === 'failed' ? 'bg-red-50 text-red-700' :
+              'bg-amber-50 text-amber-700'
+            }`}>
+              {order.refundStatus === 'completed' && `Refunded ₹${order.refundAmount} — should reflect in 5-7 business days.`}
+              {order.refundStatus === 'processing' && `Refund of ₹${order.refundAmount} is being processed.`}
+              {order.refundStatus === 'failed' && `Refund could not be processed automatically — contact Support with this order number.`}
+              {(!order.refundStatus || order.refundStatus === 'none') && `This order was cancelled — refund is being arranged.`}
+            </div>
+          )}
         </div>
 
         <div className="p-6 bg-gray-50 border-b border-gray-100">

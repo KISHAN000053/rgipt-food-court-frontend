@@ -12,12 +12,19 @@ export default function ShopDashboard() {
   const queryClient = useQueryClient()
   useSocket()
 
-  const handleStatusChange = async (orderId, newStatus) => {
+  const handleStatusChange = async (orderId, newStatus, order) => {
+    if (newStatus === 'cancelled' && order?.paymentMethod === 'razorpay' && order?.paymentStatus === 'paid') {
+      const confirmed = window.confirm(
+        `This will automatically refund ₹${order.subtotal} (the food price) to the student. The service and processing fees are not refunded. Continue?`
+      )
+      if (!confirmed) return
+    }
     try {
       await api.patch(`/owner/orders/${orderId}/status`, { status: newStatus })
       queryClient.invalidateQueries({ queryKey: ['owner', 'orders'] })
     } catch (e) {
       console.error(e)
+      alert(e.response?.data?.message || 'Could not update this order.')
     }
   }
 
@@ -82,7 +89,7 @@ export default function ShopDashboard() {
                   </button>
                 )}
                 {order.status !== 'delivery_initiated' && (
-                  <button onClick={() => handleStatusChange(order._id, 'cancelled')} className="w-full bg-red-50 text-red-600 py-2 rounded-lg font-medium hover:bg-red-100 transition text-sm">
+                  <button onClick={() => handleStatusChange(order._id, 'cancelled', order)} className="w-full bg-red-50 text-red-600 py-2 rounded-lg font-medium hover:bg-red-100 transition text-sm">
                     Cancel Order
                   </button>
                 )}
