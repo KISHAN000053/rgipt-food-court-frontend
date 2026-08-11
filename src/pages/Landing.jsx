@@ -78,6 +78,7 @@ export default function Landing() {
           <Link to="/terms" className="hover:text-canvas/60 transition">Terms</Link>
           <Link to="/privacy" className="hover:text-canvas/60 transition">Privacy</Link>
           <Link to="/code-of-conduct" className="hover:text-canvas/60 transition">Code of Conduct</Link>
+          <Link to="/about" className="hover:text-canvas/60 transition">About</Link>
         </div>
       </footer>
     </div>

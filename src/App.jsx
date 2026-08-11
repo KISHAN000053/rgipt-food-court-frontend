@@ -18,6 +18,7 @@ const Party = React.lazy(() => import('./pages/Party'))
 const PartyRoom = React.lazy(() => import('./pages/PartyRoom'))
 const Onboarding = React.lazy(() => import('./pages/Onboarding'))
 const Terms = React.lazy(() => import('./pages/Terms'))
+const About = React.lazy(() => import('./pages/About'))
 const Privacy = React.lazy(() => import('./pages/Privacy'))
 const CodeOfConduct = React.lazy(() => import('./pages/CodeOfConduct'))
 const NotFound = React.lazy(() => import('./pages/NotFound'))
@@ -91,6 +92,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.isShopOwner ? '/shop-owner' : '/home'} replace /> : <Landing />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<Privacy />} />
         <Route path="/code-of-conduct" element={<CodeOfConduct />} />
         
