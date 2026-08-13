@@ -75,8 +75,7 @@ export default function Terms() {
       <h2>5. Acceptable use</h2>
       <p>
         Don't place fraudulent or bad-faith orders, abuse the cancellation or refund process, impersonate another
-        person, misuse the Party Order feature to obtain items without paying, or attempt to access accounts,
-        shops, or admin functions you have not been authorized for. See our{' '}
+        person, or attempt to access accounts, shops, or admin functions you have not been authorized for. See our{' '}
         <Link to="/code-of-conduct">Code of Conduct</Link> for full behavioral expectations, which are part of
         these Terms.
       </p>

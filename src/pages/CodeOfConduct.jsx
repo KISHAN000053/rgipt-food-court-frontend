@@ -20,7 +20,6 @@ export default function CodeOfConduct() {
         <li>Place orders you genuinely intend to pay for and receive — don't order and cancel repeatedly to waste a shop's time or ingredients.</li>
         <li>Provide accurate hostel and room details so your order can actually reach you.</li>
         <li>Be respectful to shop staff, whether in person or through any messaging or ordering features.</li>
-        <li>In Party Orders, don't add items you don't intend to have the host pay for, and don't misuse the feature to obtain food without payment.</li>
         <li>Don't attempt to access another student's account, a shop's dashboard, or admin functions you haven't been given.</li>
       </ul>
 

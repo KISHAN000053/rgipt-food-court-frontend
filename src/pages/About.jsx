@@ -38,8 +38,7 @@ export default function About() {
         The platform is built for the RGIPT community — students who want an easy way to order food from campus
         shops, and shop owners who want a simple way to reach students without needing their own ordering
         system. Students sign in with their Google account, set up their hostel and room details once, and can
-        then order from any participating shop. A built-in "Party Order" feature also lets a group of students
-        order together under one host, splitting the browsing but keeping the payment simple.
+        then order from any participating shop.
       </p>
 
       <h2>Shop owners: access and registration</h2>

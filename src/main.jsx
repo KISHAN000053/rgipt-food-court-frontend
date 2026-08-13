@@ -6,7 +6,6 @@ import App from './App.jsx'
 import './index.css'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { CartProvider } from './context/CartContext.jsx'
-import { PartyProvider } from './context/PartyContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 
 const queryClient = new QueryClient({
@@ -26,9 +25,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
-              <PartyProvider>
-                <App />
-              </PartyProvider>
+              <App />
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>

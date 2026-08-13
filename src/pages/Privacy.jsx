@@ -15,11 +15,10 @@ export default function Privacy() {
         <li>Phone number (used by shop staff to reach you about your order)</li>
       </ul>
       <p>
-        We also store your order history (items ordered, prices, timestamps, order type, and status), Party
-        Order participation, and — for shop owners — the menu and pricing data they enter, to operate the
-        Service. This data is processed to the extent necessary to provide the Service, on the basis of your
-        consent given when you use the Service and, for order records, our legitimate interest in operating and
-        accounting for the Platform.
+        We also store your order history (items ordered, prices, timestamps, order type, and status), and — for
+        shop owners — the menu and pricing data they enter, to operate the Service. This data is processed to
+        the extent necessary to provide the Service, on the basis of your consent given when you use the
+        Service and, for order records, our legitimate interest in operating and accounting for the Platform.
       </p>
 
       <h2>2. What we don't collect</h2>
@@ -33,7 +32,7 @@ export default function Privacy() {
       <h2>3. How we use your data</h2>
       <ul>
         <li>To create and manage your account, and determine your role (student, shop owner, or admin)</li>
-        <li>To process, deliver, and provide support for your orders, including Party Orders</li>
+        <li>To process, deliver, and provide support for your orders</li>
         <li>To let shop owners see the orders placed with them</li>
         <li>To process payments and refunds through Razorpay</li>
         <li>To let admins operate, moderate, and troubleshoot the platform</li>
@@ -44,10 +43,9 @@ export default function Privacy() {
       <h2>4. Who can see your data</h2>
       <p>
         Shop owners can see the name, hostel, room number, and phone number attached to orders placed with
-        their shop only — not your data more broadly. In a Party Order, the room's host and other participants
-        can see the items and name of whoever added them, but not your hostel, room, or phone number. Admins can
-        see account and order data across the platform for support, moderation, and accounting purposes. We may
-        disclose your data where required by law, to comply with a valid legal process, or to protect the
+        their shop only — not your data more broadly. Admins can see account and order data across the
+        platform for support, moderation, and accounting purposes. We may disclose your data where required
+        by law, to comply with a valid legal process, or to protect the
         rights, safety, or property of the Platform, its users, or the public.
       </p>
 

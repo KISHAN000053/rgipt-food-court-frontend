@@ -1,11 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useCart } from '../hooks/useCart'
-import { useParty } from '../context/PartyContext'
-import { useAddPartyItem } from '../api/queries'
 import { money } from '../utils/money'
 
-// A single quantity control — used both for plain items and for each variant row.
-function QtyControl({ quantity, onAdd, onIncrement, onDecrement, disabled, justAdded }) {
+function QtyControl({ quantity, onAdd, onIncrement, onDecrement, disabled }) {
   if (quantity > 0) {
     return (
       <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg">
@@ -19,30 +16,15 @@ function QtyControl({ quantity, onAdd, onIncrement, onDecrement, disabled, justA
     <button
       onClick={onAdd}
       disabled={disabled}
-      className={`px-4 py-1.5 border transition font-medium rounded-lg text-sm disabled:opacity-50 ${
-        justAdded ? 'bg-green-500 border-green-500 text-white' : 'border-primary text-primary hover:bg-primary hover:text-white'
-      }`}
+      className="px-4 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white transition font-medium rounded-lg text-sm disabled:opacity-50"
     >
-      {justAdded ? 'ADDED' : 'ADD'}
+      ADD
     </button>
   )
 }
 
 export default function MenuItemCard({ item, shopOpen = true }) {
   const { items, addItem, updateQty } = useCart()
-  const { activeCode } = useParty()
-  const addPartyItem = useAddPartyItem()
-  const [justAddedKey, setJustAddedKey] = useState(null)
-
-  const handlePartyAdd = async (variantId) => {
-    try {
-      await addPartyItem.mutateAsync({ code: activeCode, menuItemId: item._id, quantity: 1, variantId })
-      setJustAddedKey(variantId || 'single')
-      setTimeout(() => setJustAddedKey(null), 1500)
-    } catch (err) {
-      alert(err.response?.data?.message || 'Could not add this item to the party.')
-    }
-  }
 
   const veg = (
     <div className={`w-3 h-3 rounded-sm border ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center flex-shrink-0`}>
@@ -50,7 +32,6 @@ export default function MenuItemCard({ item, shopOpen = true }) {
     </div>
   )
 
-  // --- Item with multiple price options (e.g. Quarter/Half/Full) ---
   if (item.hasVariants) {
     const minPrice = Math.min(...item.variants.map(v => v.price))
 
@@ -72,13 +53,6 @@ export default function MenuItemCard({ item, shopOpen = true }) {
                 </span>
                 {!shopOpen ? (
                   <span className="px-3 py-1 text-xs font-medium text-gray-400 border border-gray-200 rounded-lg">Closed</span>
-                ) : activeCode ? (
-                  <QtyControl
-                    quantity={0}
-                    disabled={addPartyItem.isPending}
-                    justAdded={justAddedKey === variant._id}
-                    onAdd={() => handlePartyAdd(variant._id)}
-                  />
                 ) : (
                   <QtyControl
                     quantity={cartItem?.quantity || 0}
@@ -95,7 +69,6 @@ export default function MenuItemCard({ item, shopOpen = true }) {
     )
   }
 
-  // --- Plain single-price item (unchanged behavior) ---
   const cartItem = items.find(i => i.menuItemId === item._id && !i.variantId)
 
   return (
@@ -111,13 +84,6 @@ export default function MenuItemCard({ item, shopOpen = true }) {
       <div className="flex flex-col items-end justify-center w-24">
         {!shopOpen ? (
           <span className="px-3 py-1.5 text-xs font-medium text-gray-400 border border-gray-200 rounded-lg">Closed</span>
-        ) : activeCode ? (
-          <QtyControl
-            quantity={0}
-            disabled={addPartyItem.isPending}
-            justAdded={justAddedKey === 'single'}
-            onAdd={() => handlePartyAdd(undefined)}
-          />
         ) : (
           <QtyControl
             quantity={cartItem?.quantity || 0}

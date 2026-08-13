@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { X, ShoppingCart, Trash2, Store, Home } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
 import { useAuth } from '../hooks/useAuth'
-import { usePublicSettings, usePlaceOrder, useShops, useCreateRazorpayOrder, useVerifyRazorpayPayment } from '../api/queries'
+import { usePublicSettings, useShops, useCreateRazorpayOrder, useVerifyRazorpayPayment } from '../api/queries'
 import EmptyState from './ui/EmptyState'
 import { money } from '../utils/money'
 import { openRazorpayCheckout } from '../utils/razorpay'
@@ -13,7 +13,6 @@ export default function CartDrawer({ onClose }) {
   const { user } = useAuth()
   const { data: settings } = usePublicSettings()
   const { data: shops } = useShops()
-  const placeOrder = usePlaceOrder()
   const createRazorpayOrder = useCreateRazorpayOrder()
   const verifyRazorpayPayment = useVerifyRazorpayPayment()
   const navigate = useNavigate()
@@ -56,17 +55,15 @@ export default function CartDrawer({ onClose }) {
     setError('')
     setPaying(true)
     try {
-      // Step 1: always create the order first (status stays 'pending' until payment
-      // is actually confirmed — never marked paid on trust alone).
-      const result = await placeOrder.mutateAsync({
+      // Prices the cart and opens Razorpay checkout directly. Nothing is written to
+      // the database at this point — only a short-lived, auto-expiring staging
+      // record on the server. If payment fails or is cancelled, nothing is left
+      // behind: no pending order, nothing to clean up.
+      const rp = await createRazorpayOrder.mutateAsync({
         items: items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity, variantId: i.variantId, forProductName: i.forProductName })),
         orderType,
-        paymentMethod,
+        specialInstructions: undefined,
       })
-
-      // Step 2: create a Razorpay order for the group total, open checkout.
-      const groupId = result.groupId
-      const rp = await createRazorpayOrder.mutateAsync({ groupId })
 
       openRazorpayCheckout({
         keyId: rp.keyId,
@@ -86,13 +83,13 @@ export default function CartDrawer({ onClose }) {
           }
         },
         onDismiss: () => {
-          // Order exists as 'pending' — student can retry payment from Orders later.
+          // Nothing was ever saved — the cart is untouched, nothing to clean up.
           setPaying(false)
-          setError('Payment cancelled. Your order is saved as pending — you can try paying again from Orders.')
+          setError('Payment cancelled. Nothing was charged or saved — your cart is still here whenever you\'re ready.')
         },
       })
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not place your order. Please try again.')
+      setError(err.response?.data?.message || 'Could not start payment. Please try again.')
       setPaying(false)
     }
   }
@@ -248,10 +245,10 @@ export default function CartDrawer({ onClose }) {
             ) : (
               <button
                 onClick={handlePlaceOrder}
-                disabled={placeOrder.isPending || paying || hasClosedShop || (orderType === 'hostel' && !user?.hostel)}
+                disabled={createRazorpayOrder.isPending || paying || hasClosedShop || (orderType === 'hostel' && !user?.hostel)}
                 className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition shadow-sm disabled:opacity-50"
               >
-                {placeOrder.isPending || paying
+                {createRazorpayOrder.isPending || paying
                   ? 'Opening payment...'
                   : `Pay ₹${money(grandTotal)}`}
               </button>

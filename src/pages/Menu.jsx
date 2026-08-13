@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useMenu, useShops, useShopAddons } from '../api/queries'
 import { useCart } from '../hooks/useCart'
-import { useParty } from '../context/PartyContext'
 import MenuItemCard from '../components/MenuItemCard'
 import AddonPicker from '../components/AddonPicker'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
@@ -18,7 +17,6 @@ export default function Menu() {
   const { data: shops, isLoading: shopsLoading } = useShops()
   const { data: addons } = useShopAddons(id)
   const { itemCount, total } = useCart()
-  const { activeCode } = useParty()
   
   const [activeFilter, setActiveFilter] = useState('all')
   const [addonPickerOpen, setAddonPickerOpen] = useState(false)
@@ -97,7 +95,7 @@ export default function Menu() {
       )}
 
       {addonPickerOpen && (
-        <AddonPicker shop={shop} addons={addons} onClose={() => setAddonPickerOpen(false)} partyCode={activeCode} />
+        <AddonPicker shop={shop} addons={addons} onClose={() => setAddonPickerOpen(false)} />
       )}
 
       <div className="mb-6 sticky top-16 app-page z-10 py-2">

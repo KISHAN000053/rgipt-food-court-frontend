@@ -1,47 +1,24 @@
 import React, { useState, useMemo } from 'react'
 import { X, Plus, ChevronLeft } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
-import { useAddPartyItem, usePartyRoom } from '../api/queries'
 import { money } from '../utils/money'
 
-// Two-step flow: pick which product the add-ons are for, then pick the add-ons
-// themselves. After saving, it goes back to the product list so the student can
-// repeat for another item without reopening the picker.
-export default function AddonPicker({ shop, addons, onClose, partyCode }) {
+export default function AddonPicker({ shop, addons, onClose }) {
   const { items, addItem } = useCart()
-  const { data: room } = usePartyRoom(partyCode) // only fetches when partyCode is set
-  const addPartyItem = useAddPartyItem()
 
-  const [step, setStep] = useState('products') // 'products' | 'addons'
-  const [selectedProduct, setSelectedProduct] = useState(null) // { key, label }
-  const [selected, setSelected] = useState({}) // addonId -> quantity
+  const [step, setStep] = useState('products')
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [selected, setSelected] = useState({})
   const [error, setError] = useState('')
 
-  // The list of real dishes (not add-ons) to choose from, from this shop.
   const products = useMemo(() => {
-    if (partyCode) {
-      if (!room) return []
-      const rows = []
-      for (const person of room.participants) {
-        for (const item of person.items) {
-          if (item.shopName !== shop.name || item.isAddon) continue
-          rows.push({
-            key: `${item._id}`,
-            label: item.name + (item.variantName ? ` (${item.variantName})` : ''),
-            addedByName: person.name,
-            isMine: item.isMine,
-          })
-        }
-      }
-      return rows
-    }
     return items
       .filter(i => i.shopId === shop._id && !i.isAddon)
       .map(i => ({
         key: `${i.menuItemId}::${i.variantId || ''}`,
         label: i.name + (i.variantName ? ` (${i.variantName})` : ''),
       }))
-  }, [partyCode, room, items, shop])
+  }, [items, shop])
 
   const pickProduct = (product) => {
     setSelectedProduct(product)
@@ -72,22 +49,10 @@ export default function AddonPicker({ shop, addons, onClose, partyCode }) {
     return sum + (addon ? addon.price * q : 0)
   }, 0)
 
-  const handleSave = async () => {
+  const handleSave = () => {
     setError('')
     const entries = Object.entries(selected).filter(([, qty]) => qty > 0)
     const forProductName = selectedProduct.label
-
-    if (partyCode) {
-      try {
-        for (const [addonId, qty] of entries) {
-          await addPartyItem.mutateAsync({ code: partyCode, menuItemId: addonId, quantity: qty, forProductName })
-        }
-        backToProducts()
-      } catch (err) {
-        setError(err.response?.data?.message || 'Could not add those extras to the party.')
-      }
-      return
-    }
 
     for (const [addonId, qty] of entries) {
       const addon = addons.find(a => a._id === addonId)
@@ -127,9 +92,7 @@ export default function AddonPicker({ shop, addons, onClose, partyCode }) {
             </p>
             {products.length === 0 ? (
               <p className="text-sm text-gray-400">
-                {partyCode
-                  ? `Nobody's added anything from ${shop.name} to the party yet — add a dish first, then come back to add extras to it.`
-                  : `Add a dish from ${shop.name} to your cart first, then come back to add extras to it.`}
+                Add a dish from {shop.name} to your cart first, then come back to add extras to it.
               </p>
             ) : (
               <div className="space-y-2">
@@ -140,9 +103,6 @@ export default function AddonPicker({ shop, addons, onClose, partyCode }) {
                     className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
                   >
                     <span className="text-sm text-secondary font-medium">{p.label}</span>
-                    {p.addedByName && !p.isMine && (
-                      <span className="text-xs text-gray-400">by {p.addedByName}</span>
-                    )}
                   </button>
                 ))}
               </div>
@@ -183,14 +143,12 @@ export default function AddonPicker({ shop, addons, onClose, partyCode }) {
               {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
               <button
                 onClick={handleSave}
-                disabled={selectedCount === 0 || addPartyItem.isPending}
+                disabled={selectedCount === 0}
                 className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-deep transition disabled:opacity-50"
               >
-                {addPartyItem.isPending
-                  ? 'Saving...'
-                  : selectedCount === 0
-                    ? 'Select add-ons above'
-                    : `Save ${selectedCount} for ${selectedProduct?.label} · ₹${money(selectedTotal)}`}
+                {selectedCount === 0
+                  ? 'Select add-ons above'
+                  : `Save ${selectedCount} for ${selectedProduct?.label} · ₹${money(selectedTotal)}`}
               </button>
               <p className="text-xs text-gray-400 text-center mt-2">You'll come back here to add extras to another item.</p>
             </div>

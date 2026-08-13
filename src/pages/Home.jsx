@@ -4,14 +4,11 @@ import { useShops } from '../api/queries'
 import ShopCard from '../components/ShopCard'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import EmptyState from '../components/ui/EmptyState'
-import { Store, PartyPopper, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { useParty } from '../context/PartyContext'
+import { Store } from 'lucide-react'
 
 export default function Home() {
   const { user } = useAuth()
   const { data: shops, isLoading, error } = useShops()
-  const { activeCode, stopShoppingForParty } = useParty()
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -24,18 +21,6 @@ export default function Home() {
 
   return (
     <div className="space-y-8 pb-20">
-      {activeCode && (
-        <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 flex items-center gap-3">
-          <PartyPopper className="w-5 h-5 text-primary flex-shrink-0" />
-          <p className="text-sm text-secondary flex-1">
-            Adding to party <span className="font-mono font-bold">{activeCode}</span> — items go to the group order.{' '}
-            <Link to={`/party/${activeCode}`} className="text-primary underline font-medium">View room</Link>
-          </p>
-          <button onClick={stopShoppingForParty} className="text-gray-400 hover:text-secondary" aria-label="Stop adding to party">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
       {isUnverifiedDomain && (
         <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3">
           We couldn't verify this account as an official RGIPT email. You can still browse and order — if you run

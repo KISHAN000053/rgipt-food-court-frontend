@@ -19,10 +19,6 @@ const faqs = [
     a: 'Yes — hostel delivery is available at checkout alongside takeaway. Make sure your hostel and room number are set in your Profile first, or you won\'t be able to select delivery.'
   },
   {
-    q: 'What\'s a Party Order?',
-    a: 'One person creates a party room and shares a code or link with friends. Everyone adds what they want under their own name, and the host pays once at the end — the shop receives it as a single order.'
-  },
-  {
     q: 'How do I become a shop owner on the platform?',
     a: 'Shop owner access is granted individually by an admin. If you run a campus shop and want to join, reach out below with your shop details.'
   },
