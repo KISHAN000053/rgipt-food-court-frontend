@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useOwnerReport } from '../../api/queries'
-import { Download } from 'lucide-react'
+import { Download, FileSpreadsheet } from 'lucide-react'
 import { money } from '../../utils/money'
+import api from '../../api/axios'
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
@@ -15,6 +16,7 @@ function daysAgoStr(n) {
 export default function ShopReports() {
   const [from, setFrom] = useState(daysAgoStr(7))
   const [to, setTo] = useState(todayStr())
+  const [downloadingXlsx, setDownloadingXlsx] = useState(false)
 
   const { data, isLoading } = useOwnerReport(from, to)
 
@@ -44,6 +46,26 @@ export default function ShopReports() {
     URL.revokeObjectURL(url)
   }
 
+  const downloadAnnexure = async () => {
+    setDownloadingXlsx(true)
+    try {
+      const response = await api.get('/owner/report/annexure', {
+        params: { from, to },
+        responseType: 'blob',
+      })
+      const url = URL.createObjectURL(response.data)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `payout-statement_${from}_to_${to}.xlsx`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert('Could not generate the payout statement. Please try again.')
+    } finally {
+      setDownloadingXlsx(false)
+    }
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 force-light">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6">
@@ -51,13 +73,22 @@ export default function ShopReports() {
           <h1 className="text-xl font-bold text-secondary mb-1">Order Reports</h1>
           <p className="text-sm text-gray-500">Your orders and net earnings (your own prices, before platform fees).</p>
         </div>
-        <button
-          onClick={downloadCsv}
-          disabled={!data?.rows?.length}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition disabled:opacity-50"
-        >
-          <Download className="w-4 h-4" /> Download CSV
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={downloadAnnexure}
+            disabled={downloadingXlsx}
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition disabled:opacity-50"
+          >
+            <FileSpreadsheet className="w-4 h-4" /> {downloadingXlsx ? 'Preparing...' : 'Download Payout Statement'}
+          </button>
+          <button
+            onClick={downloadCsv}
+            disabled={!data?.rows?.length}
+            className="flex items-center gap-2 border border-gray-200 text-gray-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" /> CSV
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4 mb-6">
