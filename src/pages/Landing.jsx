@@ -31,9 +31,6 @@ export default function Landing() {
             Hungry at<br />
             <span className="text-primary">the hostel?</span>
           </h1>
-          <p className="text-lg text-canvas/70 mb-10 max-w-md mx-auto">
-            Order from every campus shop in one place — delivered straight to your room.
-          </p>
 
           <button
             onClick={() => window.location.href = loginUrl}

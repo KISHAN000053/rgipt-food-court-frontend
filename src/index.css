@@ -56,6 +56,48 @@ html.dark ::-webkit-scrollbar-thumb {
   background-color: #4a4038;
 }
 
+/* Forces a page to render in light mode regardless of the app's dark mode toggle.
+   Also sets color-scheme: light, which stops browsers from auto-dark-styling native
+   form controls based on the device's OS theme — that mismatch was making typed text
+   invisible on the sign-up form when the device was in dark mode. */
+.force-light {
+  color-scheme: light;
+}
+html.dark .force-light,
+html.dark .force-light .app-page {
+  background-color: #f9fafb !important;
+}
+html.dark .force-light .bg-white {
+  background-color: #ffffff !important;
+}
+html.dark .force-light .bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+html.dark .force-light .bg-gray-100 {
+  background-color: #f3f4f6 !important;
+}
+html.dark .force-light .text-secondary {
+  color: #1A1614 !important;
+}
+html.dark .force-light .text-gray-500,
+html.dark .force-light .text-gray-600 {
+  color: #6b7280 !important;
+}
+html.dark .force-light .text-gray-400 {
+  color: #9ca3af !important;
+}
+html.dark .force-light .border-gray-50,
+html.dark .force-light .border-gray-100,
+html.dark .force-light .border-gray-200 {
+  border-color: #f3f4f6 !important;
+}
+html.dark .force-light input,
+html.dark .force-light select,
+html.dark .force-light textarea {
+  background-color: #ffffff !important;
+  color: #1A1614 !important;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

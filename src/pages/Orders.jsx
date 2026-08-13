@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useMemo, useEffect, useRef } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useMyOrders } from '../api/queries'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import OrderStatusBadge from '../components/ui/OrderStatusBadge'
@@ -9,8 +9,10 @@ import { money } from '../utils/money'
 
 export default function Orders() {
   const { data: orders, isLoading, error } = useMyOrders()
+  const [searchParams] = useSearchParams()
+  const highlightGroup = searchParams.get('group')
+  const highlightRef = useRef(null)
 
-  // Orders placed together (multi-shop checkout) share a groupId — cluster them for display.
   const groups = useMemo(() => {
     if (!orders) return []
     const map = new Map()
@@ -21,6 +23,12 @@ export default function Orders() {
     }
     return Array.from(map.values()).sort((a, b) => new Date(b[0].createdAt) - new Date(a[0].createdAt))
   }, [orders])
+
+  useEffect(() => {
+    if (highlightGroup && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [highlightGroup, groups])
 
   if (isLoading) return <LoadingSkeleton type="text" count={5} />
   
@@ -48,7 +56,14 @@ export default function Orders() {
         <section>
           <h2 className="text-lg font-bold text-secondary mb-4">Active Orders</h2>
           <div className="space-y-4">
-            {activeGroups.map(group => <OrderGroupCard key={group[0].groupId || group[0]._id} group={group} />)}
+            {activeGroups.map(group => (
+              <OrderGroupCard
+                key={group[0].groupId || group[0]._id}
+                group={group}
+                highlightRef={(group[0].groupId || group[0]._id) === highlightGroup ? highlightRef : null}
+                highlighted={(group[0].groupId || group[0]._id) === highlightGroup}
+              />
+            ))}
           </div>
         </section>
       )}
@@ -57,7 +72,14 @@ export default function Orders() {
         <section>
           <h2 className="text-lg font-bold text-secondary mb-4">Past Orders</h2>
           <div className="space-y-4">
-            {pastGroups.map(group => <OrderGroupCard key={group[0].groupId || group[0]._id} group={group} />)}
+            {pastGroups.map(group => (
+              <OrderGroupCard
+                key={group[0].groupId || group[0]._id}
+                group={group}
+                highlightRef={(group[0].groupId || group[0]._id) === highlightGroup ? highlightRef : null}
+                highlighted={(group[0].groupId || group[0]._id) === highlightGroup}
+              />
+            ))}
           </div>
         </section>
       )}
@@ -65,16 +87,18 @@ export default function Orders() {
   )
 }
 
-function OrderGroupCard({ group }) {
+function OrderGroupCard({ group, highlightRef, highlighted }) {
   const combinedTotal = group.reduce((sum, o) => sum + o.total, 0)
   const placedAt = new Date(group[0].createdAt).toLocaleString()
+  const ringClass = highlighted ? 'ring-2 ring-primary' : ''
 
   if (group.length === 1) {
     const order = group[0]
     return (
       <Link 
+        ref={highlightRef}
         to={`/orders/${order._id}`} 
-        className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:border-primary transition group"
+        className={`bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:border-primary transition group ${ringClass}`}
       >
         <div>
           <div className="flex items-center gap-3 mb-1">
@@ -98,7 +122,7 @@ function OrderGroupCard({ group }) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div ref={highlightRef} className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${ringClass}`}>
       <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
           <Store className="w-4 h-4" />

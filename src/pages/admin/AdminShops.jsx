@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useAdminShops, useCreateShop, useUpdateShop, useDeleteShop } from '../../api/queries'
+import { useAdminShops, useCreateShop, useUpdateShop, useDeleteShop, usePermanentlyDeleteShop } from '../../api/queries'
 
 const emptyForm = { name: '', ownerEmail: '' }
 
@@ -8,11 +8,17 @@ export default function AdminShops() {
   const createShop = useCreateShop()
   const updateShop = useUpdateShop()
   const deleteShop = useDeleteShop()
+  const permanentlyDeleteShop = usePermanentlyDeleteShop()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
+
+  const [permanentDeleteTarget, setPermanentDeleteTarget] = useState(null)
+  const [permanentDeleteStep, setPermanentDeleteStep] = useState(1)
+  const [confirmNameInput, setConfirmNameInput] = useState('')
+  const [permanentDeleteError, setPermanentDeleteError] = useState('')
 
   const toggleOpen = async (shop) => {
     try {
@@ -42,11 +48,34 @@ export default function AdminShops() {
   }
 
   const handleDelete = async (shop) => {
-    if (!window.confirm(`Mark "${shop.name}" as inactive? It will be hidden from students.`)) return
+    if (!window.confirm(`Deactivate "${shop.name}"? It will be hidden from students. You can reactivate it anytime, or permanently delete it once it's inactive.`)) return
     try {
       await deleteShop.mutateAsync(shop._id)
     } catch (err) {
-      alert(err.response?.data?.message || 'Could not delete this shop.')
+      alert(err.response?.data?.message || 'Could not deactivate this shop.')
+    }
+  }
+
+  const openPermanentDelete = (shop) => {
+    setPermanentDeleteTarget(shop)
+    setPermanentDeleteStep(1)
+    setConfirmNameInput('')
+    setPermanentDeleteError('')
+  }
+
+  const closePermanentDelete = () => setPermanentDeleteTarget(null)
+
+  const confirmPermanentDelete = async () => {
+    setPermanentDeleteError('')
+    if (confirmNameInput !== permanentDeleteTarget.name) {
+      setPermanentDeleteError('That doesn\'t match the shop name exactly. Nothing was deleted.')
+      return
+    }
+    try {
+      await permanentlyDeleteShop.mutateAsync({ id: permanentDeleteTarget._id, confirmName: confirmNameInput })
+      setPermanentDeleteTarget(null)
+    } catch (err) {
+      setPermanentDeleteError(err.response?.data?.message || 'Could not delete this shop.')
     }
   }
 
@@ -158,7 +187,16 @@ export default function AdminShops() {
                 </td>
                 <td className="py-4 pl-4 text-right space-x-3">
                   <button onClick={() => openEdit(shop)} className="text-primary hover:underline font-medium text-sm">Edit</button>
-                  <button onClick={() => handleDelete(shop)} className="text-red-500 hover:underline font-medium text-sm">Delete</button>
+                  {!shop.isPermanentlyClosed && (
+                    <button onClick={() => handleDelete(shop)} className="text-red-500 hover:underline font-medium text-sm">
+                      Deactivate
+                    </button>
+                  )}
+                  {shop.isPermanentlyClosed && (
+                    <button onClick={() => openPermanentDelete(shop)} className="text-red-700 hover:underline font-bold text-sm">
+                      Delete Forever
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -168,6 +206,70 @@ export default function AdminShops() {
           </tbody>
         </table>
       </div>
+
+      {permanentDeleteTarget && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closePermanentDelete}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            {permanentDeleteStep === 1 && (
+              <>
+                <h2 className="text-lg font-bold text-red-700 mb-3">Delete "{permanentDeleteTarget.name}" forever?</h2>
+                <p className="text-sm text-gray-600 mb-2">This is different from deactivating. Permanently deleting this shop will:</p>
+                <ul className="text-sm text-gray-600 list-disc pl-5 mb-4 space-y-1">
+                  <li>Remove the shop and every one of its menu items completely</li>
+                  <li>Cannot be undone — there is no "reactivate" after this</li>
+                  <li>Past orders from this shop stay in your records for payout history, but will show as "Deleted shop"</li>
+                </ul>
+                <div className="flex justify-end gap-3">
+                  <button onClick={closePermanentDelete} className="px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition">Cancel</button>
+                  <button onClick={() => setPermanentDeleteStep(2)} className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition">I understand, continue</button>
+                </div>
+              </>
+            )}
+
+            {permanentDeleteStep === 2 && (
+              <>
+                <h2 className="text-lg font-bold text-red-700 mb-3">Are you absolutely sure?</h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  This is your last chance to back out. Once deleted, "{permanentDeleteTarget.name}" and its entire menu
+                  are gone for good — this cannot be recovered, even by contacting support.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button onClick={closePermanentDelete} className="px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition">Cancel</button>
+                  <button onClick={() => setPermanentDeleteStep(3)} className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition">Yes, I'm sure</button>
+                </div>
+              </>
+            )}
+
+            {permanentDeleteStep === 3 && (
+              <>
+                <h2 className="text-lg font-bold text-red-700 mb-3">Final step</h2>
+                <p className="text-sm text-gray-600 mb-3">
+                  Type the shop's name exactly to confirm: <span className="font-bold text-secondary">{permanentDeleteTarget.name}</span>
+                </p>
+                <input
+                  type="text"
+                  value={confirmNameInput}
+                  onChange={e => setConfirmNameInput(e.target.value)}
+                  placeholder="Type the shop name"
+                  autoFocus
+                  className="w-full border-2 border-red-200 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-red-400"
+                />
+                {permanentDeleteError && <p className="text-red-500 text-sm mb-3">{permanentDeleteError}</p>}
+                <div className="flex justify-end gap-3">
+                  <button onClick={closePermanentDelete} className="px-4 py-2 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition">Cancel</button>
+                  <button
+                    onClick={confirmPermanentDelete}
+                    disabled={permanentlyDeleteShop.isPending || confirmNameInput !== permanentDeleteTarget.name}
+                    className="bg-red-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {permanentlyDeleteShop.isPending ? 'Deleting...' : 'Delete Forever'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={closeModal}>

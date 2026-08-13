@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { usePartyRoom, useRemovePartyItem, usePartyCheckout, useCreateRazorpayOrder, useVerifyRazorpayPayment } from '../api/queries'
+import { usePartyRoom, useRemovePartyItem, usePartyCheckout, useCreateRazorpayOrder, useVerifyRazorpayPayment, useStopParty, useDeleteParty } from '../api/queries'
 import { useParty } from '../context/PartyContext'
 import { useAuth } from '../hooks/useAuth'
 import { Copy, Check, Trash2, Home, Store, Users, Plus, ArrowLeft } from 'lucide-react'
@@ -18,15 +18,16 @@ export default function PartyRoom() {
   const checkout = usePartyCheckout()
   const createRazorpayOrder = useCreateRazorpayOrder()
   const verifyRazorpayPayment = useVerifyRazorpayPayment()
+  const stopParty = useStopParty()
+  const deleteParty = useDeleteParty()
 
-  const [orderType, setOrderType] = useState('hostel')
+  const [orderType, setOrderType] = useState(user?.isJunior === false ? 'takeaway' : 'hostel')
   const [copied, setCopied] = useState(false)
   const [checkoutError, setCheckoutError] = useState('')
   const [paying, setPaying] = useState(false)
 
   const shareLink = `${window.location.origin}/party/${code}`
 
-  // Leaving the room page shouldn't silently keep "party shopping mode" on for another room.
   useEffect(() => {
     if (activeCode && activeCode !== code) stopShoppingForParty()
   }, [activeCode, code, stopShoppingForParty])
@@ -54,11 +55,30 @@ export default function PartyRoom() {
     }
   }
 
+  const handleStop = async () => {
+    if (!window.confirm('Stop this party? Guests will no longer be able to add items. This cannot be undone.')) return
+    try {
+      await stopParty.mutateAsync(code)
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not stop this party.')
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this party entirely? This removes it permanently and cannot be undone.')) return
+    try {
+      await deleteParty.mutateAsync(code)
+      stopShoppingForParty()
+      navigate('/party')
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not delete this party.')
+    }
+  }
+
   const handleCheckout = async () => {
     setCheckoutError('')
     setPaying(true)
     try {
-      // Places the order (locks the room) and pays online — same flow as normal checkout.
       const result = await checkout.mutateAsync({ code, orderType, paymentMethod: 'razorpay' })
       const groupId = result.groupId
       const rp = await createRazorpayOrder.mutateAsync({ groupId })
@@ -107,6 +127,7 @@ export default function PartyRoom() {
   const grandTotal = Math.round((room.subtotal + serviceFee + processingFee) * 100) / 100
 
   const isOrdered = room.status === 'ordered'
+  const isCancelled = room.status === 'cancelled'
 
   return (
     <div className="max-w-2xl mx-auto space-y-5 pb-24">
@@ -128,9 +149,27 @@ export default function PartyRoom() {
               Ordered
             </span>
           )}
+          {isCancelled && (
+            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 uppercase tracking-wider whitespace-nowrap">
+              Stopped
+            </span>
+          )}
         </div>
 
-        {!isOrdered && (
+        {room.isHost && room.status !== 'ordered' && (
+          <div className="flex gap-4 mb-1">
+            {room.status === 'open' && (
+              <button onClick={handleStop} disabled={stopParty.isPending} className="text-sm text-amber-600 hover:underline font-medium disabled:opacity-50">
+                Stop party
+              </button>
+            )}
+            <button onClick={handleDelete} disabled={deleteParty.isPending} className="text-sm text-red-500 hover:underline font-medium disabled:opacity-50">
+              Delete party
+            </button>
+          </div>
+        )}
+
+        {room.status === 'open' && (
           <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-xs font-medium text-gray-500 mb-2">Share this with your friends</p>
             <div className="flex items-center gap-3">
@@ -146,7 +185,7 @@ export default function PartyRoom() {
         )}
       </div>
 
-      {!isOrdered && (
+      {room.status === 'open' && (
         <button
           onClick={handleAddItems}
           className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary-deep transition flex items-center justify-center gap-2"
@@ -179,7 +218,7 @@ export default function PartyRoom() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-medium text-secondary">₹{money(item.price * item.quantity)}</span>
-                    {!isOrdered && (item.isMine || room.isHost) && (
+                    {room.status === 'open' && (item.isMine || room.isHost) && (
                       <button
                         onClick={() => handleRemove(item._id)}
                         className="text-gray-400 hover:text-red-500 transition"
@@ -214,7 +253,7 @@ export default function PartyRoom() {
             <span>Total</span>
             <span>₹{grandTotal.toFixed(2)}</span>
           </div>
-          {!room.isHost && !isOrdered && (
+          {!room.isHost && room.status === 'open' && (
             <p className="text-xs text-gray-400 pt-1">
               {room.hostName} pays for the whole party order.
             </p>
@@ -222,35 +261,44 @@ export default function PartyRoom() {
         </div>
       )}
 
-      {room.isHost && !isOrdered && room.itemCount > 0 && (
+      {room.isHost && room.status === 'open' && room.itemCount > 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-4">
           <div>
             <h3 className="font-medium text-secondary mb-3">How do you want it?</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setOrderType('hostel')}
-                className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'hostel' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <Home className={`w-6 h-6 ${orderType === 'hostel' ? 'text-primary' : 'text-gray-400'}`} />
-                <span className={`text-sm font-medium ${orderType === 'hostel' ? 'text-primary' : 'text-gray-600'}`}>Deliver to Hostel</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setOrderType('takeaway')}
-                className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'takeaway' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <Store className={`w-6 h-6 ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-400'}`} />
-                <span className={`text-sm font-medium ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-600'}`}>Takeaway</span>
-              </button>
-            </div>
-            <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-              {orderType === 'hostel'
-                ? (user?.hostel
-                    ? <>Delivering to <span className="font-medium text-secondary">{user.hostel}, Room {user.roomNumber}</span></>
-                    : <span className="text-red-500">Set your hostel &amp; room in your profile first.</span>)
-                : 'Collect from the shop counter when it\'s ready.'}
-            </div>
+            {user?.isJunior === false ? (
+              <div className="flex items-center gap-2 p-3 rounded-lg border-2 border-primary bg-primary/5">
+                <Store className="w-6 h-6 text-primary" />
+                <span className="text-sm font-medium text-primary">Takeaway — collect from the shop counter</span>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setOrderType('hostel')}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'hostel' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                  >
+                    <Home className={`w-6 h-6 ${orderType === 'hostel' ? 'text-primary' : 'text-gray-400'}`} />
+                    <span className={`text-sm font-medium ${orderType === 'hostel' ? 'text-primary' : 'text-gray-600'}`}>Deliver to Hostel</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrderType('takeaway')}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'takeaway' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                  >
+                    <Store className={`w-6 h-6 ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-400'}`} />
+                    <span className={`text-sm font-medium ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-600'}`}>Takeaway</span>
+                  </button>
+                </div>
+                <div className={`mt-3 text-sm rounded-lg px-3 py-2 ${orderType === 'hostel' && !user?.hostel ? 'bg-red-50 border border-red-200 text-red-600 font-medium' : 'bg-gray-50 text-gray-500'}`}>
+                  {orderType === 'hostel'
+                    ? (user?.hostel
+                        ? <>Delivering to <span className="font-medium text-secondary">{user.hostel}, Room {user.roomNumber}</span></>
+                        : <>You haven't set a hostel/room in your profile yet — that's why payment is disabled below. <Link to="/profile" className="underline">Set it now</Link>, or switch to Takeaway.</>)
+                    : 'Collect from the shop counter when it\'s ready.'}
+                </div>
+              </>
+            )}
           </div>
 
           {checkoutError && <p className="text-red-500 text-sm">{checkoutError}</p>}
@@ -270,7 +318,9 @@ export default function PartyRoom() {
 
       {isOrdered && (
         <div className="text-center">
-          <Link to="/orders" className="text-primary hover:underline font-medium">View the order →</Link>
+          <Link to={room.orderGroupId ? `/orders?group=${room.orderGroupId}` : '/orders'} className="text-primary hover:underline font-medium">
+            View the order →
+          </Link>
         </div>
       )}
     </div>

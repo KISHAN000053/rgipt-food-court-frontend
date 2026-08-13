@@ -92,6 +92,14 @@ export const useDeleteShop = () => {
   })
 }
 
+export const usePermanentlyDeleteShop = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, confirmName }) => api.delete(`/admin/shops/${id}/permanent`, { data: { confirmName } }).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'shops'] })
+  })
+}
+
 // Admin menu management (per shop)
 export const useAdminShopMenu = (shopId) => useQuery({
   queryKey: ['admin', 'menu', shopId],
@@ -204,6 +212,22 @@ export const useRemovePartyItem = () => {
   return useMutation({
     mutationFn: ({ code, itemId }) => api.delete(`/party/${code}/items/${itemId}`).then(r => r.data),
     onSuccess: (_, vars) => queryClient.invalidateQueries({ queryKey: ['party', vars.code] })
+  })
+}
+
+export const useStopParty = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (code) => api.post(`/party/${code}/stop`).then(r => r.data),
+    onSuccess: (_, code) => queryClient.invalidateQueries({ queryKey: ['party', code] })
+  })
+}
+
+export const useDeleteParty = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (code) => api.delete(`/party/${code}`).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['party', 'mine'] })
   })
 }
 

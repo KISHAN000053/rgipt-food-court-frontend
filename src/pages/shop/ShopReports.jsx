@@ -45,7 +45,7 @@ export default function ShopReports() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 force-light">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6">
         <div>
           <h1 className="text-xl font-bold text-secondary mb-1">Order Reports</h1>

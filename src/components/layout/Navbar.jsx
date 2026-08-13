@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Flame, ShoppingCart, User, Menu, X } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useCart } from '../../hooks/useCart'
+import { useParty } from '../../context/PartyContext'
 import CartDrawer from '../CartDrawer'
 
 export default function Navbar() {
   const { user } = useAuth()
   const { itemCount } = useCart()
+  const { activeCode } = useParty()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -16,6 +18,11 @@ export default function Navbar() {
   // own dedicated dashboards and don't need these in the shared top nav.
   const isStudentView = !!user && user.role !== 'admin' && !user.isShopOwner
   const homeLink = user?.role === 'admin' ? '/admin' : user?.isShopOwner ? '/shop-owner' : '/home'
+
+  const handleCartClick = () => {
+    if (activeCode) navigate(`/party/${activeCode}`)
+    else setCartOpen(true)
+  }
 
   return (
     <>
@@ -46,7 +53,7 @@ export default function Navbar() {
               {user ? (
                 <>
                   {isStudentView && (
-                    <button onClick={() => setCartOpen(true)} className="relative p-2 text-secondary hover:text-primary transition">
+                    <button onClick={handleCartClick} className="relative p-2 text-secondary hover:text-primary transition">
                       <ShoppingCart className="w-6 h-6" />
                       {itemCount > 0 && (
                         <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-primary rounded-full">

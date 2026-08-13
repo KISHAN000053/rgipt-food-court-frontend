@@ -9,12 +9,12 @@ export default function Onboarding() {
   const navigate = useNavigate()
   const { data: hostels } = useHostels()
 
-  // Shop owners and admins never onboard as students.
   useEffect(() => {
     if (user?.role === 'admin') navigate('/admin', { replace: true })
     else if (user?.isShopOwner) navigate('/shop-owner', { replace: true })
   }, [user, navigate])
 
+  const [isJunior, setIsJunior] = useState(null)
   const [hostelId, setHostelId] = useState('')
   const [roomDigits, setRoomDigits] = useState('')
   const [phone, setPhone] = useState('')
@@ -22,14 +22,12 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Default to first hostel once loaded.
   useEffect(() => {
     if (hostels?.length && !hostelId) setHostelId(hostels[0]._id)
   }, [hostels, hostelId])
 
   const selectedHostel = hostels?.find(h => h._id === hostelId)
 
-  // Reset room digits when hostel changes (rules differ).
   useEffect(() => { setRoomDigits('') }, [hostelId])
 
   const handleRoomChange = (e) => {
@@ -41,9 +39,13 @@ export default function Onboarding() {
     e.preventDefault()
     setError('')
 
-    if (!selectedHostel) return setError('Please select your hostel.')
-    if (roomDigits.length < 3 || roomDigits.length > 4) {
-      return setError('Room number must be 3 or 4 digits.')
+    if (isJunior === null) return setError('Please select whether you\'re a Junior or Senior.')
+
+    if (isJunior) {
+      if (!selectedHostel) return setError('Please select your hostel.')
+      if (roomDigits.length < 3 || roomDigits.length > 4) {
+        return setError('Room number must be 3 or 4 digits.')
+      }
     }
     if (!/^[0-9]{10}$/.test(phone)) {
       return setError('Enter a valid 10-digit mobile number.')
@@ -52,16 +54,14 @@ export default function Onboarding() {
       return setError('Please agree to the Terms, Privacy Policy, and Code of Conduct to continue.')
     }
 
-    const roomNumber = roomDigits
-
     setLoading(true)
     try {
       await api.patch('/users/profile', {
-        hostel: selectedHostel.name,
-        roomNumber,
+        isJunior,
+        hostel: isJunior ? selectedHostel.name : undefined,
+        roomNumber: isJunior ? roomDigits : undefined,
         phone,
         agreeToTerms,
-        isOnboarded: true,
       })
       await refetchUser()
       navigate('/home')
@@ -73,43 +73,70 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="max-w-md mx-auto pt-10">
+    <div className="max-w-md mx-auto pt-10 force-light">
       <div className="bg-white rounded-2xl shadow-card p-8 border border-gray-100">
         <h1 className="text-2xl font-bold text-secondary mb-2">Complete your profile</h1>
-        <p className="text-gray-500 mb-6">We need a few details to deliver to your room.</p>
+        <p className="text-gray-500 mb-6">Just a couple of details to get you started.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-secondary mb-1">Hostel</label>
-            <select
-              value={hostelId}
-              onChange={e => setHostelId(e.target.value)}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-              required
-            >
-              {hostels?.length ? (
-                hostels.map(h => <option key={h._id} value={h._id}>{h.name}</option>)
-              ) : (
-                <option value="">Loading hostels...</option>
-              )}
-            </select>
+            <label className="block text-sm font-medium text-secondary mb-2">Are you a Junior or Senior?</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsJunior(true)}
+                className={`p-3 rounded-lg border-2 text-sm font-medium transition ${isJunior === true ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}
+              >
+                Junior
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsJunior(false)}
+                className={`p-3 rounded-lg border-2 text-sm font-medium transition ${isJunior === false ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}
+              >
+                Senior
+              </button>
+            </div>
+            {isJunior === false && (
+              <p className="text-xs text-gray-400 mt-2">
+                As a Senior, hostel delivery isn't available — you'll order for takeaway only.
+              </p>
+            )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-secondary mb-1">Room Number</label>
-            <div className="flex items-center border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-primary overflow-hidden">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={roomDigits}
-                onChange={handleRoomChange}
-                placeholder="Room number"
-                className="flex-1 p-3 outline-none font-mono"
-                required
-              />
-            </div>
-            <p className="text-xs text-gray-400 mt-1">Enter 3 or 4 digits.</p>
-          </div>
+          {isJunior === true && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-secondary mb-1">Hostel</label>
+                <select
+                  value={hostelId}
+                  onChange={e => setHostelId(e.target.value)}
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                >
+                  {hostels?.length ? (
+                    hostels.map(h => <option key={h._id} value={h._id}>{h.name}</option>)
+                  ) : (
+                    <option value="">Loading hostels...</option>
+                  )}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-secondary mb-1">Room Number</label>
+                <div className="flex items-center border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-primary overflow-hidden">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={roomDigits}
+                    onChange={handleRoomChange}
+                    placeholder="Room number"
+                    className="flex-1 p-3 outline-none font-mono"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Enter 3 or 4 digits.</p>
+              </div>
+            </>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-secondary mb-1">Phone Number</label>

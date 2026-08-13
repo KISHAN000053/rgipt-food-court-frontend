@@ -24,7 +24,7 @@ export default function CartDrawer({ onClose }) {
   const grandTotal = Math.round((total + (items.length > 0 ? serviceFee : 0) + processingFee) * 100) / 100
 
   const [checkoutMode, setCheckoutMode] = useState(false)
-  const [orderType, setOrderType] = useState('hostel')
+  const [orderType, setOrderType] = useState(user?.isJunior === false ? 'takeaway' : 'hostel')
   const paymentMethod = 'razorpay' // Cash on Delivery has been removed — all orders are paid online now.
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState('')
@@ -161,37 +161,46 @@ export default function CartDrawer({ onClose }) {
                 <>
                   <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                     <h4 className="font-medium mb-3">How do you want it?</h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setOrderType('hostel')}
-                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'hostel' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
-                      >
-                        <Home className={`w-6 h-6 ${orderType === 'hostel' ? 'text-primary' : 'text-gray-400'}`} />
-                        <span className={`text-sm font-medium ${orderType === 'hostel' ? 'text-primary' : 'text-gray-600'}`}>Deliver to Hostel</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setOrderType('takeaway')}
-                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'takeaway' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
-                      >
-                        <Store className={`w-6 h-6 ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-400'}`} />
-                        <span className={`text-sm font-medium ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-600'}`}>Takeaway</span>
-                      </button>
-                    </div>
-
-                    {orderType === 'hostel' ? (
-                      <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-                        {user?.hostel ? (
-                          <>Delivering to <span className="font-medium text-secondary">{user.hostel}, Room {user.roomNumber}</span></>
-                        ) : (
-                          <span className="text-red-500">Set your hostel &amp; room in your profile first.</span>
-                        )}
+                    {user?.isJunior === false ? (
+                      <div className="flex items-center gap-2 p-3 rounded-lg border-2 border-primary bg-primary/5">
+                        <Store className="w-6 h-6 text-primary" />
+                        <span className="text-sm font-medium text-primary">Takeaway — collect from the shop counter</span>
                       </div>
                     ) : (
-                      <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-                        Collect from the shop counter when it's ready.
-                      </div>
+                      <>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setOrderType('hostel')}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'hostel' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                          >
+                            <Home className={`w-6 h-6 ${orderType === 'hostel' ? 'text-primary' : 'text-gray-400'}`} />
+                            <span className={`text-sm font-medium ${orderType === 'hostel' ? 'text-primary' : 'text-gray-600'}`}>Deliver to Hostel</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setOrderType('takeaway')}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition ${orderType === 'takeaway' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}
+                          >
+                            <Store className={`w-6 h-6 ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-400'}`} />
+                            <span className={`text-sm font-medium ${orderType === 'takeaway' ? 'text-primary' : 'text-gray-600'}`}>Takeaway</span>
+                          </button>
+                        </div>
+
+                        {orderType === 'hostel' ? (
+                          <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+                            {user?.hostel ? (
+                              <>Delivering to <span className="font-medium text-secondary">{user.hostel}, Room {user.roomNumber}</span></>
+                            ) : (
+                              <span className="text-red-500">Set your hostel &amp; room in your profile first.</span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+                            Collect from the shop counter when it's ready.
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
 

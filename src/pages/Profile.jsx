@@ -10,6 +10,7 @@ export default function Profile() {
   const { data: hostels } = useHostels()
 
   const [editing, setEditing] = useState(false)
+  const [isJunior, setIsJunior] = useState(false)
   const [hostel, setHostel] = useState('')
   const [roomNumber, setRoomNumber] = useState('')
   const [phone, setPhone] = useState('')
@@ -17,6 +18,7 @@ export default function Profile() {
   const [error, setError] = useState('')
 
   const startEdit = () => {
+    setIsJunior(!!user?.isJunior)
     setHostel(user?.hostel || '')
     setRoomNumber(user?.roomNumber || '')
     setPhone(user?.phone || '')
@@ -27,13 +29,20 @@ export default function Profile() {
   const handleSave = async (e) => {
     e.preventDefault()
     setError('')
-    if (!hostel) return setError('Please select a hostel.')
-    if (!/^[0-9]{3,4}$/.test(roomNumber)) return setError('Room number must be 3 or 4 digits.')
+    if (isJunior && (!hostel || !/^[0-9]{3,4}$/.test(roomNumber))) {
+      return setError('As a Junior, please select a hostel and enter a 3-4 digit room number.')
+    }
     if (!/^[0-9]{10}$/.test(phone)) return setError('Enter a valid 10-digit mobile number.')
 
     setSaving(true)
     try {
-      await api.patch('/users/profile', { hostel, roomNumber, phone, agreeToTerms: true })
+      await api.patch('/users/profile', {
+        isJunior,
+        hostel: isJunior ? hostel : undefined,
+        roomNumber: isJunior ? roomNumber : undefined,
+        phone,
+        agreeToTerms: true,
+      })
       await refetchUser()
       setEditing(false)
     } catch (err) {
@@ -44,7 +53,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto force-light">
       <h1 className="text-2xl font-bold text-secondary mb-6">My Profile</h1>
       
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
@@ -71,28 +80,50 @@ export default function Profile() {
         {editing ? (
           <form onSubmit={handleSave} className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Hostel</label>
-              <select
-                value={hostel}
-                onChange={e => setHostel(e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-              >
-                <option value="">Select hostel</option>
-                {hostels?.map(h => <option key={h._id} value={h.name}>{h.name}</option>)}
-              </select>
+              <label className="block text-sm font-medium text-gray-600 mb-2">Junior or Senior?</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => setIsJunior(true)}
+                  className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${isJunior ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                  Junior
+                </button>
+                <button type="button" onClick={() => setIsJunior(false)}
+                  className={`p-2.5 rounded-lg border-2 text-sm font-medium transition ${!isJunior ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-600'}`}>
+                  Senior
+                </button>
+              </div>
+              {!isJunior && (
+                <p className="text-xs text-gray-400 mt-2">As a Senior, hostel delivery isn't available — takeaway only.</p>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Room Number</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={roomNumber}
-                onChange={e => setRoomNumber(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
-                placeholder="Room number"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none font-mono"
-              />
-              <p className="text-xs text-gray-400 mt-1">3 or 4 digits.</p>
-            </div>
+
+            {isJunior && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Hostel</label>
+                  <select
+                    value={hostel}
+                    onChange={e => setHostel(e.target.value)}
+                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  >
+                    <option value="">Select hostel</option>
+                    {hostels?.map(h => <option key={h._id} value={h.name}>{h.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Room Number</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={roomNumber}
+                    onChange={e => setRoomNumber(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
+                    placeholder="Room number"
+                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none font-mono"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">3 or 4 digits.</p>
+                </div>
+              </>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Phone Number</label>
               <input
@@ -118,14 +149,16 @@ export default function Profile() {
           </form>
         ) : (
           <div className="p-6 space-y-6">
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-              <div>
-                <p className="font-medium text-gray-500 text-sm mb-1">Delivery Address</p>
-                <p className="text-secondary font-medium">{user?.hostel || 'Not set'}</p>
-                <p className="text-secondary">{user?.roomNumber ? `Room ${user.roomNumber}` : ''}</p>
+            {user?.isJunior !== false && (
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-500 text-sm mb-1">Delivery Address</p>
+                  <p className="text-secondary font-medium">{user?.hostel || 'Not set'}</p>
+                  <p className="text-secondary">{user?.roomNumber ? `Room ${user.roomNumber}` : ''}</p>
+                </div>
               </div>
-            </div>
+            )}
             
             <div className="flex items-start gap-3">
               <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
