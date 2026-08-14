@@ -13,7 +13,7 @@ export const useSocket = () => {
     socketRef.current = io(url, { transports: ['websocket', 'polling'] })
 
     socketRef.current.on('orderStatusChanged', (data) => {
-      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] })
+      queryClient.invalidateQueries({ queryKey: ['order', data._id] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'my'] })
       if (Notification.permission === 'granted') {
         new Notification('RGIPT Food Court', { body: `Your order is now ${data.status}` })
