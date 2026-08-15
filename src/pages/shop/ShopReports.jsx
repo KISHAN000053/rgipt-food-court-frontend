@@ -108,14 +108,22 @@ export default function ShopReports() {
         <p className="text-gray-400 py-8 text-center">Loading...</p>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-sm text-gray-500 mb-1">Orders</p>
               <p className="text-2xl font-bold text-secondary">{data?.orderCount || 0}</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-500 mb-1">Net Earnings</p>
+              <p className="text-sm text-gray-500 mb-1">Total Earnings</p>
               <p className="text-2xl font-bold text-primary">₹{money(data?.totalEarnings || 0)}</p>
+            </div>
+            <div className="bg-emerald-50 rounded-lg p-4">
+              <p className="text-sm text-gray-500 mb-1">Already Received</p>
+              <p className="text-xl font-bold text-emerald-600">₹{money(data?.totalAutoPaid || 0)}</p>
+            </div>
+            <div className="bg-amber-50 rounded-lg p-4">
+              <p className="text-sm text-gray-500 mb-1">Still Owed</p>
+              <p className="text-xl font-bold text-amber-600">₹{money(data?.totalManualOwed || 0)}</p>
             </div>
           </div>
 
@@ -127,6 +135,7 @@ export default function ShopReports() {
                   <th className="pb-3 px-4">Date</th>
                   <th className="pb-3 px-4">Type</th>
                   <th className="pb-3 px-4">Items</th>
+                  <th className="pb-3 px-4">Payment</th>
                   <th className="pb-3 pl-4 text-right">Earnings</th>
                 </tr>
               </thead>
@@ -137,17 +146,24 @@ export default function ShopReports() {
                     <td className="py-3 px-4 text-gray-600 text-sm">{new Date(r.date).toLocaleDateString()}</td>
                     <td className="py-3 px-4 text-gray-600 text-sm">{r.type}</td>
                     <td className="py-3 px-4 text-gray-600 text-sm max-w-xs truncate">{r.items}</td>
+                    <td className="py-3 px-4 text-sm">
+                      {r.paidAutomatically ? (
+                        <span className="text-emerald-600 font-medium">Received</span>
+                      ) : (
+                        <span className="text-amber-600 font-medium">Owed</span>
+                      )}
+                    </td>
                     <td className="py-3 pl-4 text-right font-medium">₹{money(r.earnings)}</td>
                   </tr>
                 ))}
                 {(!data?.rows || data.rows.length === 0) && (
-                  <tr><td colSpan={5} className="py-8 text-center text-gray-400">No orders in this range.</td></tr>
+                  <tr><td colSpan={6} className="py-8 text-center text-gray-400">No orders in this range.</td></tr>
                 )}
               </tbody>
               {data?.rows?.length > 0 && (
                 <tfoot>
                   <tr className="border-t-2 border-gray-100 font-bold text-secondary">
-                    <td colSpan={4} className="py-3 pr-4 text-right">Total Earnings</td>
+                    <td colSpan={5} className="py-3 pr-4 text-right">Total Earnings</td>
                     <td className="py-3 pl-4 text-right text-primary">₹{money(data.totalEarnings)}</td>
                   </tr>
                 </tfoot>
