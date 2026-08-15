@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAdminShops, useCreateShop, useUpdateShop, useDeleteShop, usePermanentlyDeleteShop } from '../../api/queries'
 
-const emptyForm = { name: '', ownerEmail: '' }
+const emptyForm = { name: '', ownerEmail: '', razorpayLinkedAccountId: '' }
 
 export default function AdminShops() {
   const { data: shops } = useAdminShops()
@@ -91,6 +91,7 @@ export default function AdminShops() {
     setForm({
       name: shop.name || '',
       ownerEmail: shop.ownerEmail || '',
+      razorpayLinkedAccountId: shop.razorpayLinkedAccountId || '',
     })
     setError('')
     setModalOpen(true)
@@ -114,6 +115,7 @@ export default function AdminShops() {
     const payload = {
       name: form.name.trim(),
       ownerEmail: form.ownerEmail.trim(),
+      razorpayLinkedAccountId: form.razorpayLinkedAccountId.trim() || null,
     }
 
     try {
@@ -156,7 +158,16 @@ export default function AdminShops() {
           <tbody>
             {shops?.map(shop => (
               <tr key={shop._id} className="border-b border-gray-50 last:border-0">
-                <td className="py-4 pr-4 font-medium text-secondary">{shop.name}</td>
+                <td className="py-4 pr-4 font-medium text-secondary">
+                  <div className="flex items-center gap-2">
+                    {shop.name}
+                    {shop.razorpayLinkedAccountId && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-600" title={shop.razorpayLinkedAccountId}>
+                        Auto-pay
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td className="py-4 px-4 text-gray-600">
                   {shop.ownerId?.name || shop.ownerEmail || <span className="text-gray-400">Unassigned</span>}
                 </td>
@@ -297,6 +308,22 @@ export default function AdminShops() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <p className="text-xs text-gray-400 mt-1">Only this email can access the shop owner dashboard for this shop. Leave blank to unassign.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Razorpay Route Linked Account ID</label>
+                <input
+                  type="text"
+                  value={form.razorpayLinkedAccountId}
+                  onChange={e => setForm({ ...form, razorpayLinkedAccountId: e.target.value.trim() })}
+                  placeholder="acc_xxxxxxxxxxxxxx (leave blank for manual payout)"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <p className="text-xs text-amber-600 mt-1">
+                  ⚠ Setting this makes this shop's payments automatic — their share of every future order will be
+                  transferred to this account the moment a student pays. Only paste an ID here once it shows
+                  "Activated" in your Route dashboard. Leave blank to keep paying this shop manually, as before.
+                </p>
               </div>
 
               {error && <p className="text-red-500 text-sm">{error}</p>}

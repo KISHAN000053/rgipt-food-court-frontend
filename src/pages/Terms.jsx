@@ -19,6 +19,12 @@ export default function Terms() {
         providing the ordering interface, processing payment through our payment partner, and passing order
         details to the shop.
       </p>
+      <p>
+        For some shops, the shop's share of your payment is transferred to that shop's own bank account
+        automatically at the time of payment, using our payment partner's split-payment service. For other
+        shops, the same amount is instead paid to them separately by us afterward. Either way, the amount you
+        pay for your food is passed through to the shop in full — we do not take a commission on food prices.
+      </p>
 
       <h2>2. Who can use it</h2>
       <p>
