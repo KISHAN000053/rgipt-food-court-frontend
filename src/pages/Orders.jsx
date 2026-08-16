@@ -44,7 +44,7 @@ export default function Orders() {
     )
   }
 
-  const isActive = (group) => group.some(o => !['delivery_initiated', 'cancelled'].includes(o.status.toLowerCase()))
+  const isActive = (group) => group.some(o => !['completed', 'cancelled'].includes(o.status.toLowerCase()))
   const activeGroups = groups.filter(isActive)
   const pastGroups = groups.filter(g => !isActive(g))
 

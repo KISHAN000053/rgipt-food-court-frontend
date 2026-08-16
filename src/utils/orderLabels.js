@@ -4,6 +4,9 @@ export function statusLabel(status, orderType) {
   if (key === 'delivery_initiated') {
     return orderType === 'takeaway' ? 'Ready for pickup' : 'Out for delivery'
   }
+  if (key === 'completed') {
+    return orderType === 'takeaway' ? 'Picked up' : 'Delivered'
+  }
   const labels = {
     pending: 'Pending',
     accepted: 'Accepted',
@@ -20,4 +23,9 @@ export function orderTypeLabel(orderType) {
 // The shop owner's action button text for advancing to the final step.
 export function finalStepButtonLabel(orderType) {
   return orderType === 'takeaway' ? 'Mark Ready for Pickup' : 'Mark Out for Delivery'
+}
+
+// The very last step — actually confirming the food reached the student.
+export function completeButtonLabel(orderType) {
+  return orderType === 'takeaway' ? 'Verify PIN & Complete' : 'Mark Delivered'
 }

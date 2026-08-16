@@ -1,13 +1,14 @@
 import React from 'react'
-import { Check } from 'lucide-react'
+import { Check, KeyRound } from 'lucide-react'
 import { statusLabel } from '../utils/orderLabels'
 
-export default function OrderTracker({ status, orderType }) {
+export default function OrderTracker({ status, orderType, pickupPin }) {
   const steps = [
     { id: 'pending', label: 'Placed' },
     { id: 'accepted', label: 'Accepted' },
     { id: 'preparing', label: 'Preparing' },
-    { id: 'delivery_initiated', label: statusLabel('delivery_initiated', orderType) }
+    { id: 'delivery_initiated', label: statusLabel('delivery_initiated', orderType) },
+    { id: 'completed', label: statusLabel('completed', orderType) },
   ]
 
   const statusMap = {
@@ -15,10 +16,13 @@ export default function OrderTracker({ status, orderType }) {
     accepted: 1,
     preparing: 2,
     delivery_initiated: 3,
+    completed: 4,
     cancelled: -1
   }
 
   const currentIndex = statusMap[status?.toLowerCase()] ?? -1
+  const isTakeaway = orderType === 'takeaway'
+  const showPin = isTakeaway && pickupPin && !['completed', 'cancelled'].includes(status?.toLowerCase())
 
   if (status?.toLowerCase() === 'cancelled') {
     return (
@@ -30,6 +34,15 @@ export default function OrderTracker({ status, orderType }) {
 
   return (
     <div className="py-4">
+      {showPin && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+          <p className="flex items-center justify-center gap-1.5 text-xs font-medium text-amber-700 mb-1">
+            <KeyRound className="w-3.5 h-3.5" /> Show this PIN when you collect your order
+          </p>
+          <p className="text-3xl font-bold tracking-[0.3em] text-amber-800 font-mono">{pickupPin}</p>
+        </div>
+      )}
+
       {steps.map((step, index) => {
         const isCompleted = index < currentIndex
         const isCurrent = index === currentIndex

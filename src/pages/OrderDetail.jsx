@@ -70,7 +70,7 @@ export default function OrderDetail() {
 
         <div className="p-6 bg-gray-50 border-b border-gray-100">
           <h3 className="font-semibold text-secondary mb-4">Live Tracking</h3>
-          <OrderTracker status={order.status} orderType={order.orderType} />
+          <OrderTracker status={order.status} orderType={order.orderType} pickupPin={order.pickupPin} />
         </div>
 
         <div className="p-6 border-b border-gray-100">

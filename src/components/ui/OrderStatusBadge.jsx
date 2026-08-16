@@ -7,6 +7,7 @@ export default function OrderStatusBadge({ status, orderType }) {
     accepted: 'bg-blue-100 text-blue-800',
     preparing: 'bg-orange-100 text-orange-800',
     delivery_initiated: 'bg-emerald-100 text-emerald-800',
+    completed: 'bg-gray-800 text-white',
     cancelled: 'bg-red-100 text-red-800',
   }
 
