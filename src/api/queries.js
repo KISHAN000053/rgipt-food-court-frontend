@@ -193,7 +193,7 @@ export const useMyShop = () => useQuery({ queryKey: ['owner', 'shop'], queryFn: 
 export const useToggleMyShopStatus = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (isOpen) => api.patch('/owner/shop/status', { isOpen }).then(r => r.data),
+    mutationFn: ({ isOpen, force }) => api.patch('/owner/shop/status', { isOpen, force }).then(r => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['owner', 'shop'] })
   })
 }

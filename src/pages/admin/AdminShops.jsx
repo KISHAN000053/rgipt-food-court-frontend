@@ -48,7 +48,7 @@ export default function AdminShops() {
   }
 
   const handleDelete = async (shop) => {
-    if (!window.confirm(`Deactivate "${shop.name}"? It will be hidden from students. You can reactivate it anytime, or permanently delete it once it's inactive.`)) return
+    if (!window.confirm(`Deactivate "${shop.name}"? It will be hidden from students, and any orders still in progress will be automatically cancelled and refunded. You can reactivate it anytime, or permanently delete it once it's inactive.`)) return
     try {
       await deleteShop.mutateAsync(shop._id)
     } catch (err) {

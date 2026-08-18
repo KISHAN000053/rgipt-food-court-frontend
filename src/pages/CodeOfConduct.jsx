@@ -30,6 +30,8 @@ export default function CodeOfConduct() {
         <li>Prepare and handle food safely, in line with applicable food-safety and hygiene laws, including any required licensing (e.g. FSSAI registration where applicable).</li>
         <li>Treat all students fairly regardless of who they are.</li>
         <li>Only cancel a paid order when genuinely necessary — cancelling a paid order triggers an automatic refund of the food price to the student, and repeated unnecessary cancellations may be treated as a violation.</li>
+        <li>Always verify a student's pickup code before marking a takeaway order as completed — don't mark an order complete without it.</li>
+        <li>If you go offline while orders are still in progress, understand that those orders will be automatically cancelled and refunded — try to clear or finish in-progress orders before going offline where possible.</li>
       </ul>
 
       <h2>For everyone</h2>

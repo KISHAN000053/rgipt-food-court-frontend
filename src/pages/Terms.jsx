@@ -66,6 +66,12 @@ export default function Terms() {
         a reasonable time, contact Support with the payment reference so it can be investigated. We do not
         guarantee any specific refund timeline beyond what Razorpay and the banking system provide.
       </p>
+      <p>
+        If a shop goes offline while one of your orders is still in progress (not yet ready for pickup or out
+        for delivery), that order is automatically cancelled and refunded in full under this same policy — the
+        shop is not obligated to fulfil an order placed before it went offline, but you are not left having paid
+        for food you will not receive.
+      </p>
 
       <h2>4. Shop responsibilities</h2>
       <p>
@@ -76,6 +82,15 @@ export default function Terms() {
         (FSSAI) or the equivalent regulator where required. We do not inspect, certify, test, or guarantee food
         quality, hygiene, or safety at any shop, and we do not hold any food-business license on behalf of any
         shop.
+      </p>
+      <p>
+        Shop owners must access the platform through their own shop-owner account, which requires separately
+        accepting these Terms before the shop dashboard becomes usable. Shop owners are additionally responsible
+        for: verifying a student's pickup code before marking a takeaway order as completed — completing an
+        order without this check may be treated as a violation; complying with whatever menu-editing schedule or
+        restriction is set for their shop by admin; and understanding that setting their shop offline while an
+        order is still in progress will automatically cancel that order and refund the student (see §3a).
+        Repeated or deliberate misuse of any of these mechanics may result in suspension under §10.
       </p>
 
       <h2>5. Acceptable use</h2>

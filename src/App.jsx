@@ -32,6 +32,7 @@ const AdminPayouts = React.lazy(() => import('./pages/admin/AdminPayouts'))
 const AdminHostels = React.lazy(() => import('./pages/admin/AdminHostels'))
 
 const ShopLayout = React.lazy(() => import('./pages/shop/ShopLayout'))
+const ShopOwnerAcceptTerms = React.lazy(() => import('./pages/shop/ShopOwnerAcceptTerms'))
 const ShopDashboard = React.lazy(() => import('./pages/shop/ShopDashboard'))
 const ShopMenu = React.lazy(() => import('./pages/shop/ShopMenu'))
 const ShopReports = React.lazy(() => import('./pages/shop/ShopReports'))
@@ -56,6 +57,12 @@ function RequireAdmin({ children }) {
 function RequireShopOwner({ children }) {
   const { user } = useAuth()
   if (user && user.role !== 'admin' && !user.isShopOwner) return <Navigate to="/home" replace />
+  // Shop owners never go through student onboarding, so this is the only place
+  // that ever asks them to accept Terms — without this, they could reach the
+  // dashboard having agreed to nothing.
+  if (user && user.isShopOwner && user.role !== 'admin' && !user.acceptedTerms) {
+    return <Navigate to="/shop-owner/accept-terms" replace />
+  }
   return children
 }
 
@@ -96,6 +103,7 @@ export default function App() {
         
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<LayoutWrapper><Onboarding /></LayoutWrapper>} />
+          <Route path="/shop-owner/accept-terms" element={<ShopOwnerAcceptTerms />} />
           {/* Profile and Support are for everyone — students, shop owners, and admins —
               so they live outside the student-only RequireOnboarded gate below. Without
               this, clicking Profile/Support as a shop owner or admin just bounced you

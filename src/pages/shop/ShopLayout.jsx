@@ -16,9 +16,24 @@ export default function ShopLayout() {
     { path: '/support', icon: LifeBuoy, label: 'Support' },
   ]
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     if (!shop) return
-    toggleStatus.mutate(!shop.isOpen)
+    if (shop.isOpen) {
+      // Going offline — check first whether this would strand any paid, in-progress orders.
+      const result = await toggleStatus.mutateAsync({ isOpen: false })
+      if (result.needsConfirmation) {
+        const confirmed = window.confirm(
+          `You have ${result.activeOrderCount} order${result.activeOrderCount === 1 ? '' : 's'} still in progress. ` +
+          `Going offline now will automatically cancel ${result.activeOrderCount === 1 ? 'it' : 'them'} and refund the ` +
+          `student${result.activeOrderCount === 1 ? '' : 's'} in full. Continue going offline?`
+        )
+        if (confirmed) {
+          await toggleStatus.mutateAsync({ isOpen: false, force: true })
+        }
+      }
+    } else {
+      toggleStatus.mutate({ isOpen: true })
+    }
   }
 
   return (

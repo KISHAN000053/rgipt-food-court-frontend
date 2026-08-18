@@ -20,6 +20,13 @@ export default function Privacy() {
         the extent necessary to provide the Service, on the basis of your consent given when you use the
         Service and, for order records, our legitimate interest in operating and accounting for the Platform.
       </p>
+      <p>
+        For takeaway orders, we generate a short pickup verification code, derived from your phone number, so
+        the shop can confirm they're handing your order to the right person. If you (as a shop owner) enable
+        order notifications, we store the browser subscription details needed to deliver them — this only lets
+        us send you notifications about your own shop's orders, and can be turned off at any time from your
+        dashboard.
+      </p>
 
       <h2>2. What we don't collect</h2>
       <p>
@@ -34,6 +41,7 @@ export default function Privacy() {
         <li>To create and manage your account, and determine your role (student, shop owner, or admin)</li>
         <li>To process, deliver, and provide support for your orders</li>
         <li>To let shop owners see the orders placed with them</li>
+        <li>To send shop owners a notification when a new order comes in, if they've enabled it</li>
         <li>To process payments and refunds through Razorpay</li>
         <li>To let admins operate, moderate, and troubleshoot the platform</li>
         <li>To detect and prevent fraud or abuse of the Service</li>
@@ -43,10 +51,11 @@ export default function Privacy() {
       <h2>4. Who can see your data</h2>
       <p>
         Shop owners can see the name, hostel, room number, and phone number attached to orders placed with
-        their shop only — not your data more broadly. Admins can see account and order data across the
-        platform for support, moderation, and accounting purposes. We may disclose your data where required
-        by law, to comply with a valid legal process, or to protect the
-        rights, safety, or property of the Platform, its users, or the public.
+        their shop only — not your data more broadly. Your pickup verification code is visible only to you; shop
+        owners confirm it by asking you for it, not by looking it up. Admins can see account and order data
+        across the platform for support, moderation, and accounting purposes. We may disclose your data where
+        required by law, to comply with a valid legal process, or to protect the rights, safety, or property of
+        the Platform, its users, or the public.
       </p>
 
       <h2>5. Where your data is stored</h2>
