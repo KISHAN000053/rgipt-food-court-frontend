@@ -2,7 +2,7 @@ import React from 'react'
 import { Bell, BellOff } from 'lucide-react'
 import { usePushNotifications } from '../hooks/usePushNotifications'
 
-export default function PushNotificationToggle() {
+export default function PushNotificationToggle({ description = 'Get notified the moment a new order comes in, even with another app open.' }) {
   const { supported, subscribed, loading, error, subscribe, unsubscribe } = usePushNotifications()
 
   if (!supported) {
@@ -35,7 +35,7 @@ export default function PushNotificationToggle() {
       {error && <p className="text-red-500 text-xs mt-1 px-1">{error}</p>}
       {!subscribed && !loading && (
         <p className="text-xs text-gray-400 mt-1 px-1">
-          Get notified the moment a new order comes in, even with another app open.
+          {description}
         </p>
       )}
     </div>

@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useMyOrders, useHostels } from '../api/queries'
 import api from '../api/axios'
 import { User, Mail, MapPin, Phone, LogOut, Pencil } from 'lucide-react'
+import PushNotificationToggle from '../components/PushNotificationToggle'
 
 export default function Profile() {
   const { user, logout, refetchUser } = useAuth()
@@ -180,6 +181,11 @@ export default function Profile() {
           <p className="text-gray-500 text-sm font-medium mb-1">Account Role</p>
           <p className="text-lg font-bold text-secondary capitalize">{user?.role || 'Student'}</p>
         </div>
+      </div>
+
+      <div className="bg-white p-4 rounded-xl border border-gray-100 mb-4">
+        <p className="text-sm font-medium text-secondary mb-2">Order Updates</p>
+        <PushNotificationToggle description="Know the moment your order is accepted, ready, or cancelled — even with the app closed." />
       </div>
 
       <button 

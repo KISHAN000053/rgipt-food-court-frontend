@@ -18,21 +18,20 @@ self.addEventListener('push', (event) => {
     tag: data.tag || 'new-order',         // prevents duplicate banners for same order
     requireInteraction: true,             // stays on screen until dismissed
     vibrate: [200, 100, 200, 100, 200],   // noticeable pattern even on silent
-    data: { orderId: data.orderId },
+    data: { url: data.url || '/' },
     actions: [
-      { action: 'view', title: 'View Order' },
+      { action: 'view', title: 'View' },
     ],
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || 'New Order', options)
+    self.registration.showNotification(data.title || 'RGIPT Food Court', options)
   );
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const orderId = event.notification.data?.orderId;
-  const targetUrl = orderId ? `/shop-owner` : '/shop-owner';
+  const targetUrl = event.notification.data?.url || '/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {

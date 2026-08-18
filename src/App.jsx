@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import Navbar from './components/layout/Navbar'
@@ -84,12 +84,6 @@ function FullPageLoading() {
 export default function App() {
   const { user } = useAuth()
   useSocket() // one global connection: keeps shop status, orders and menus live everywhere
-  
-  useEffect(() => {
-    if (Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
-  }, [])
 
   return (
     <>
