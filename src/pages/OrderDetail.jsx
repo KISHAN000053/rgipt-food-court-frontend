@@ -1,7 +1,6 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useOrder } from '../api/queries'
-import { useSocket } from '../hooks/useSocket'
 import OrderTracker from '../components/OrderTracker'
 import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import OrderStatusBadge from '../components/ui/OrderStatusBadge'
@@ -11,8 +10,6 @@ import { money } from '../utils/money'
 export default function OrderDetail() {
   const { id } = useParams()
   const { data: order, isLoading } = useOrder(id)
-  
-  useSocket()
 
   if (isLoading) return <LoadingSkeleton type="text" count={6} />
   if (!order) return <div>Order not found</div>

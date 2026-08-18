@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useOwnerOrders } from '../../api/queries'
-import { useSocket } from '../../hooks/useSocket'
 import OrderStatusBadge from '../../components/ui/OrderStatusBadge'
 import { finalStepButtonLabel, completeButtonLabel } from '../../utils/orderLabels'
 import { Home, Store, KeyRound } from 'lucide-react'
@@ -12,7 +11,6 @@ export default function ShopDashboard() {
   const queryClient = useQueryClient()
   const [pinInputs, setPinInputs] = useState({}) // orderId -> typed PIN
   const [pinErrors, setPinErrors] = useState({}) // orderId -> error message
-  useSocket()
 
   const handleStatusChange = async (orderId, newStatus, order, pin) => {
     if (newStatus === 'cancelled' && order?.paymentMethod === 'razorpay' && order?.paymentStatus === 'paid') {
