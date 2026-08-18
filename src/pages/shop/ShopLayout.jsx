@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Utensils, FileText, LifeBuoy } from 'lucide-react'
 import { useMyShop, useToggleMyShopStatus } from '../../api/queries'
+import PushNotificationToggle from '../../components/PushNotificationToggle'
 
 export default function ShopLayout() {
   const location = useLocation()
@@ -56,6 +57,10 @@ export default function ShopLayout() {
             )}
           </div>
         )}
+
+        <div className="px-2 mb-4 pb-4 border-b border-gray-100">
+          <PushNotificationToggle />
+        </div>
 
         <nav className="space-y-1">
           {navItems.map((item) => {

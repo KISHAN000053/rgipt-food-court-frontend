@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Clock, MapPin, Moon } from 'lucide-react'
+import { Clock, Moon, Store } from 'lucide-react'
 import { usePublicSettings } from '../api/queries'
 
 export default function Landing() {
@@ -32,6 +32,11 @@ export default function Landing() {
             <span className="text-primary">the hostel?</span>
           </h1>
 
+          <p className="text-lg text-canvas/70 mb-10 max-w-md mx-auto leading-relaxed">
+            Order on your way down.<br />
+            <span className="text-canvas font-semibold">It'll be ready when you get there.</span>
+          </p>
+
           <button
             onClick={() => window.location.href = loginUrl}
             className="bg-primary text-white text-lg font-semibold py-4 px-10 rounded-full shadow-lg shadow-primary/30 hover:bg-primary-deep hover:-translate-y-0.5 transition-all duration-200"
@@ -52,9 +57,9 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16 max-w-3xl w-full">
           {[
-            { icon: MapPin, title: 'To your room', body: 'Hostel delivery for first years — everyone else can take away.' },
-            { icon: Clock, title: 'Live tracking', body: 'Watch it go from accepted to on-its-way.' },
-            { icon: Moon, title: 'After-hours', body: 'Built for the nights you can\'t leave campus.' },
+            { icon: Store, title: 'Skip the wait', body: 'Order ahead, walk down, pick it up. No asking if it\'s ready — the shop pings you the moment it is.' },
+            { icon: Clock, title: 'Live tracking', body: 'Watch it go from Accepted → Preparing → Ready for pickup, in real time.' },
+            { icon: Moon, title: 'After-hours too', body: 'Built for juniors who can\'t leave campus late. Hostel delivery when the gates are shut.' },
           ].map(({ icon: Icon, title, body }) => (
             <div key={title} className="rounded-xl bg-white/5 border border-white/10 p-5 text-left backdrop-blur-sm">
               <Icon className="w-5 h-5 text-primary mb-3" />
