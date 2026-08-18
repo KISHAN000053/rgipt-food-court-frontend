@@ -7,7 +7,7 @@ const emptyForm = { name: '', category: '', isVeg: true, isAvailable: true, isAd
 export default function ShopMenu() {
   const { data: menuItems } = useOwnerMenu()
   const { data: shop } = useMyShop()
-  const restricted = shop?.menuEditingEnabled === false
+  const restricted = shop?.menuEditPolicy === 'restricted'
   const createItem = useCreateMenuItem()
   const updateItem = useUpdateMenuItem()
   const deleteItem = useDeleteMenuItem()

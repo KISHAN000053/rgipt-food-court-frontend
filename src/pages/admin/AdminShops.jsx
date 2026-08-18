@@ -37,11 +37,11 @@ export default function AdminShops() {
     }
   }
 
-  const toggleMenuEditing = async (shop) => {
-    const nowAllowed = shop.menuEditingEnabled === false // i.e. we're about to turn it back on
-    if (!nowAllowed && !window.confirm(`Restrict ${shop.name} from adding, removing, or repricing menu items? They can still mark items in/out of stock.`)) return
+  const setMenuEditPolicy = async (shop, policy) => {
+    if (policy === shop.menuEditPolicy) return
+    if (policy === 'restricted' && !window.confirm(`Restrict ${shop.name} from adding, removing, or repricing menu items? They can still mark items in/out of stock.`)) return
     try {
-      await updateShop.mutateAsync({ id: shop._id, data: { menuEditingEnabled: shop.menuEditingEnabled === false } })
+      await updateShop.mutateAsync({ id: shop._id, data: { menuEditPolicy: policy } })
     } catch (err) {
       alert('Could not update menu editing permission.')
     }
@@ -189,12 +189,20 @@ export default function AdminShops() {
                   )}
                 </td>
                 <td className="py-4 px-4">
-                  <button
-                    onClick={() => toggleMenuEditing(shop)}
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${shop.menuEditingEnabled !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                  <select
+                    value={shop.menuEditPolicy || 'default'}
+                    onChange={e => setMenuEditPolicy(shop, e.target.value)}
+                    className={`text-xs font-medium rounded-full px-2 py-1 border-0 focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer ${
+                      shop.menuEditPolicy === 'restricted' ? 'bg-red-100 text-red-700' :
+                      shop.menuEditPolicy === 'unrestricted' ? 'bg-blue-100 text-blue-700' :
+                      'bg-green-100 text-green-700'
+                    }`}
+                    title="Default: only while offline, 3:30 AM–2:30 PM. Unrestricted: no limits. Restricted: no menu edits at all."
                   >
-                    {shop.menuEditingEnabled !== false ? 'Allowed' : 'Restricted'}
-                  </button>
+                    <option value="default">Default</option>
+                    <option value="unrestricted">Unrestricted</option>
+                    <option value="restricted">Restricted</option>
+                  </select>
                 </td>
                 <td className="py-4 pl-4 text-right space-x-3">
                   <button onClick={() => openEdit(shop)} className="text-primary hover:underline font-medium text-sm">Edit</button>

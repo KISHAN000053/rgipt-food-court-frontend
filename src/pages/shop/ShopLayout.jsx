@@ -52,8 +52,11 @@ export default function ShopLayout() {
                 </span>
               </button>
             )}
-            {shop.menuEditingEnabled === false && (
+            {shop.menuEditPolicy === 'restricted' && (
               <p className="text-xs text-amber-600 mt-2 px-1">Menu editing restricted by admin</p>
+            )}
+            {shop.menuEditPolicy === 'default' && (
+              <p className="text-xs text-gray-400 mt-2 px-1">Menu edits: offline only, 3:30 AM–2:30 PM</p>
             )}
           </div>
         )}
