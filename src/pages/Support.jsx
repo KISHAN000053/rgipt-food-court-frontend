@@ -67,8 +67,8 @@ export default function Support() {
         </h2>
         <p className="text-gray-500 text-sm">
           Email us at{' '}
-          <a href="mailto:collegeconnect@rgipt.ac.in" className="text-primary underline">
-            collegeconnect@rgipt.ac.in
+          <a href="mailto:support@collegeconnect4u.in" className="text-primary underline">
+            support@collegeconnect4u.in
           </a>{' '}
           with your order number (if relevant) and a description of the issue. We'll get back to you as soon as we can.
         </p>

@@ -57,14 +57,10 @@ export default function About() {
         platform, without needing to build or maintain any ordering system of their own.
       </p>
 
-      <h2>Where we operate</h2>
+      <h2>Contact</h2>
       <p>
-        College Connect operates from RGIPT, Jais, Raebareli, Uttar Pradesh — 229304.
-      </p>
-
-      <hr className="my-8 border-gray-100" />
-      <p className="text-xs text-gray-400">
-        Operated by Kishan Karri &middot; RGIPT, Jais, Raebareli, Uttar Pradesh, India &ndash; 229304
+        For any questions, requests, or concerns — including privacy-related grievances — reach out through the{' '}
+        <Link to="/support">Support</Link> page.
       </p>
     </div>
   )
