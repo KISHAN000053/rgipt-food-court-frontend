@@ -2,6 +2,7 @@ import React, { Suspense } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import Navbar from './components/layout/Navbar'
+import NotificationPrompt from './components/NotificationPrompt'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import ThemeToggle from './components/ThemeToggle'
 import { useSocket } from './hooks/useSocket'
@@ -73,6 +74,7 @@ function LayoutWrapper({ children }) {
       <main className="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {children}
       </main>
+      <NotificationPrompt />
     </div>
   )
 }
