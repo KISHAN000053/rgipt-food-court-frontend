@@ -168,7 +168,7 @@ export default function ShopMenu() {
                 </td>
                 <td className="py-4 pl-4 text-right space-x-3">
                   {restricted ? (
-                    <span className="text-gray-300 text-sm">Locked</span>
+                    <span className="text-gray-500 text-sm">Locked</span>
                   ) : (
                     <>
                       <button onClick={() => openEdit(item)} className="text-primary hover:underline font-medium text-sm">Edit</button>

@@ -13,6 +13,17 @@
   }
 }
 
+/* text-gray-400's default Tailwind value (#9CA3AF) fails accessibility contrast
+   against white/gray-50 (2.4-2.5:1, badly below the 4.5:1 minimum) — genuinely
+   hard to read, not just subjectively "light". This is used across the app for
+   helper text, timestamps, and secondary labels, so fixing it here in one place
+   covers every instance without touching each component individually. Stays
+   visually distinct from (lighter than) gray-500 to preserve the intended
+   hierarchy between the two. Dark mode already had its own correct override below.*/
+.text-gray-400 {
+  color: #6C7482 !important;
+}
+
 /* Dark mode: overrides the actual Tailwind utility classes used throughout the app,
    so most components don't need individual dark: variants added everywhere. */
 html.dark body {

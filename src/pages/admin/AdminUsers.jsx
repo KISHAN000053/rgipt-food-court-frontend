@@ -51,7 +51,7 @@ export default function AdminUsers() {
                   <td className="py-4 px-4 capitalize">{isShopOwner ? 'Shop Owner' : user.role}</td>
                   <td className="py-4 pl-4 text-right">
                     {isProtected ? (
-                      <span className="text-gray-300 text-sm" title={isShopOwner ? 'Unassign from Shops first to delete' : undefined}>Protected</span>
+                      <span className="text-gray-500 text-sm" title={isShopOwner ? 'Unassign from Shops first to delete' : undefined}>Protected</span>
                     ) : (
                       <button onClick={() => handleDelete(user)} className="text-red-500 hover:underline font-medium text-sm">Delete</button>
                     )}

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 export default function CodeOfConduct() {
   return (
     <div className="max-w-3xl mx-auto p-6 sm:p-10 prose prose-sm">
-      <Link to="/" className="text-primary text-sm">&larr; Back</Link>
+      <Link to="/" className="text-primary text-sm font-medium hover:underline">&larr; Back</Link>
       <h1 className="text-3xl font-bold text-secondary mt-4 mb-2">Code of Conduct</h1>
       <p className="text-gray-400 text-sm mb-8">Last updated: August 2026</p>
 
