@@ -4,8 +4,7 @@ import { Flame, ShoppingCart, User, Menu, X } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useCart } from '../../hooks/useCart'
 import CartDrawer from '../CartDrawer'
-
-const CAMPUS_NAME = import.meta.env.VITE_CAMPUS_NAME || 'RGIPT Food Court'
+import { CAMPUS_NAME } from '../../config/branding'
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 const LOGIN_URL = `${API_BASE_URL}/api/auth/google`
 
