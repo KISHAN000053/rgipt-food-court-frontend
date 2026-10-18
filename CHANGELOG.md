@@ -2,6 +2,7 @@
 
 ## 2026-10-18
 
+- Added full-history Gitleaks secret scanning to GitHub Actions and expanded ignore rules for environment files, package-manager credentials, private keys, local databases, and backups.
 - Centralized public campus, institution, and support-email branding in `src/config/branding.js`.
 - Updated About, Terms, Code of Conduct, Support, navbar, and service-worker fallback copy to use configurable branding where appropriate.
 - Normalized the configured backend URL so a trailing slash does not produce a double-slash API base URL.
