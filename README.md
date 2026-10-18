@@ -90,6 +90,10 @@ Before deploying a fork:
 
 This project is a campus-specific starting point, not a multi-tenant SaaS system. Do not serve multiple colleges from one database unless tenant isolation is designed and enforced throughout the backend.
 
+## Detailed guide
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for local setup, Vercel deployment, campus configuration, and pre-launch checks.
+
 ## Security and production checklist
 
 - Never commit `.env`, API keys, database credentials, OAuth client secrets, JWT secrets, or payment secrets.
