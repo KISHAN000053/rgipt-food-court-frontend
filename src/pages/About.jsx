@@ -1,27 +1,27 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { CAMPUS_NAME, INSTITUTION_NAME } from '../config/branding'
 
 export default function About() {
   return (
     <div className="max-w-3xl mx-auto p-6 sm:p-10 prose prose-sm">
       <Link to="/" className="text-primary text-sm font-medium hover:underline">&larr; Back</Link>
       <h1 className="text-3xl font-bold text-secondary mt-4 mb-2">About College Connect</h1>
-      <p className="text-gray-400 text-sm mb-8">RGIPT Food Court, operated under College Connect</p>
+      <p className="text-gray-400 text-sm mb-8">{CAMPUS_NAME}, operated under College Connect</p>
 
       <h2>What College Connect is</h2>
       <p>
-        College Connect is the platform behind RGIPT Food Court — a campus food ordering system built for
-        students at Rajiv Gandhi Institute of Petroleum Technology (RGIPT). It connects students with
+        College Connect is the platform behind {CAMPUS_NAME} — a campus food ordering system configured for
+        {INSTITUTION_NAME}. It connects students with
         independent, on-campus food shops, letting them browse menus, place orders, and pay online, with the
         option of takeaway or delivery straight to their hostel room.
       </p>
 
       <h2>Why it was built</h2>
       <p>
-        Hostel gates close at night, and first-year students in particular are often restricted from stepping
-        out after hours — but that doesn't mean the craving for a late meal goes away. College Connect was built
-        to solve exactly that: giving students a way to order from campus shops without needing to physically
-        visit them, especially during the hours when leaving the hostel isn't an option.
+        College life is busy, and students often want a faster way to find food without waiting in line. College
+        Connect brings participating campus shops into one ordering experience, with takeaway and any delivery
+        options enabled by the campus operator.
       </p>
 
       <h2>The role it plays</h2>
@@ -35,7 +35,7 @@ export default function About() {
 
       <h2>Who can use it, and why</h2>
       <p>
-        The platform is built for the RGIPT community — students who want an easy way to order food from campus
+        The platform is configured for the {INSTITUTION_NAME} community — students who want an easy way to order food from campus
         shops, and shop owners who want a simple way to reach students without needing their own ordering
         system. Students sign in with their Google account, set up their hostel and room details once, and can
         then order from any participating shop.
