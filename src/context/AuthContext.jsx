@@ -1,6 +1,10 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react'
 import api, { captureTokenFromUrl, clearToken } from '../api/axios'
 
+// Capture the OAuth token before child components mount. The app-level Socket.IO
+// hook can then use the same token on its initial connection, not an empty token.
+captureTokenFromUrl()
+
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
@@ -19,10 +23,8 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    // If we just came back from Google OAuth, grab the token from the URL first.
-    captureTokenFromUrl()
     fetchUser()
-    
+
     const handleUnauthorized = () => {
       setUser(null)
     }
