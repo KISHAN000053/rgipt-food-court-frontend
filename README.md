@@ -1,17 +1,34 @@
 # Campus Food Court — Frontend
 
-A reusable campus food-ordering frontend built with React and Vite. It currently includes RGIPT-specific branding and authentication assumptions; review the customization notes before deploying it for another campus.
+A React/Vite frontend for campus food ordering, with student, shop-owner, and administrator experiences.
 
-**Backend:** https://github.com/KISHAN000053/rgipt-food-court-backend
+**Backend API:** https://github.com/KISHAN000053/rgipt-food-court-backend
 
 ## Features
-- Student-facing shop discovery, menus, cart, orders, profile, and support pages
-- Shop-owner dashboards and order management
+
+- Browse campus shops and menus
+- Cart, checkout, order history, and live order tracking
+- Student profile and support pages
+- Shop-owner dashboard and menu/order management
 - Admin screens for campus operations
+- Google sign-in through the backend
 - REST API integration and Socket.IO client support
-- Responsive UI with React Router
+- Responsive UI, route-based code splitting, and Vite production builds
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Student[Student / Shop Owner / Admin] --> UI[React + Vite Frontend]
+  UI -->|REST + auth| API[Express Backend]
+  UI <-->|Live updates| Socket[Socket.IO]
+  API --> DB[(MongoDB)]
+  API --> OAuth[Google OAuth]
+  API --> Pay[Razorpay]
+```
 
 ## Stack
+
 React 18 · Vite 5 · Tailwind CSS 3 · React Router 6 · TanStack Query 5 · Axios · Socket.IO Client · Lucide
 
 ## Local development
@@ -24,13 +41,9 @@ cp .env.example .env
 npm run dev
 ```
 
-Vite normally serves the app at http://localhost:5173. Configure the backend URL in `.env`:
+Vite normally serves the app at http://localhost:5173. For local development, leave `VITE_API_URL` empty; the included Vite proxy sends `/api` requests to `localhost:5000`. If you change the backend port, update `vite.config.js` as well.
 
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-For production, set `VITE_API_URL` to the deployed backend's base URL. Only put public configuration in `VITE_*` variables: Vite embeds these values in client-side assets.
+For production, set `VITE_API_URL` to the deployed backend's base URL. Configure `VITE_CAMPUS_NAME` to change the navbar brand. Only put public configuration in `VITE_*` variables: Vite embeds these values in client-side assets.
 
 Useful commands:
 
@@ -60,20 +73,22 @@ Some routes require authentication and a corresponding role on the backend. Fron
 1. Import this repository into Vercel.
 2. Select the Vite framework preset.
 3. Set `VITE_API_URL` to the deployed backend URL.
-4. Deploy. The included Vercel configuration should handle client-side routing.
+4. Set `VITE_CAMPUS_NAME` to your chosen campus brand.
+5. Deploy. The included Vercel configuration should handle client-side routing.
 
 Also configure the backend's CORS and OAuth callback settings for the deployed frontend URL.
 
 ## Reuse for another campus
 
 Before deploying a fork:
-1. Replace RGIPT-specific names, copy, logos, and campus references.
-2. Check the Google OAuth flow and configure the correct authorized redirect URI.
-3. Configure the backend URL and ensure backend CORS allows this frontend origin.
-4. Verify student email-domain rules, admin identities, hostel/room fields, and campus-specific seed data in the backend.
-5. Test student, shop-owner, and admin flows with separate accounts, including payment and order-status updates.
+1. Set the campus name in `VITE_CAMPUS_NAME`.
+2. Review remaining campus-specific labels and content; the landing page and backend authentication policy must match the intended campus.
+3. Configure the Google OAuth flow and authorized redirect URI.
+4. Configure the backend URL and ensure backend CORS allows this frontend origin.
+5. Verify student email-domain rules, admin identities, hostel/room fields, and campus-specific seed data in the backend.
+6. Test student, shop-owner, and admin flows with separate accounts, including payment and order-status updates.
 
-Search the codebase for `RGIPT`, `rgipt.ac.in`, and campus-specific labels to find remaining assumptions.
+This project is a campus-specific starting point, not a multi-tenant SaaS system. Do not serve multiple colleges from one database unless tenant isolation is designed and enforced throughout the backend.
 
 ## Security and production checklist
 
@@ -85,4 +100,4 @@ Search the codebase for `RGIPT`, `rgipt.ac.in`, and campus-specific labels to fi
 
 ## License
 
-Check the repository's root license file before redistributing or selling a modified version. Third-party services and assets have their own terms. This README is documentation, not a guarantee of production readiness.
+This repository includes an MIT license, permitting commercial use, modification, and redistribution subject to its terms. Third-party services and assets have their own terms. This README is not a guarantee of production readiness.
