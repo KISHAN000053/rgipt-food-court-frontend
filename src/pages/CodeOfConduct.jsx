@@ -1,15 +1,16 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { CAMPUS_NAME } from '../config/branding'
 
 export default function CodeOfConduct() {
   return (
     <div className="max-w-3xl mx-auto p-6 sm:p-10 prose prose-sm">
       <Link to="/" className="text-primary text-sm font-medium hover:underline">&larr; Back</Link>
       <h1 className="text-3xl font-bold text-secondary mt-4 mb-2">Code of Conduct</h1>
-      <p className="text-gray-400 text-sm mb-8">Last updated: August 2026</p>
+      <p className="text-gray-400 text-sm mb-8">Last updated: October 2026</p>
 
       <p>
-        RGIPT Food Court exists to make campus life easier for everyone — students, shop staff, and the people
+        {CAMPUS_NAME} exists to make campus life easier for everyone — students, shop staff, and the people
         running the platform. This Code of Conduct is part of our{' '}
         <Link to="/terms">Terms of Service</Link>. Everyone using the Service agrees to the following, and
         violations may be enforced at the sole discretion of the admin team.
