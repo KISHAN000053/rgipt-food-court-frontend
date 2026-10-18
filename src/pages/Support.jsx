@@ -1,5 +1,6 @@
 import React from 'react'
 import { MessageCircle, Mail, HelpCircle, Users } from 'lucide-react'
+import { CAMPUS_NAME, SUPPORT_EMAIL } from '../config/branding'
 
 const faqs = [
   {
@@ -55,8 +56,8 @@ export default function Support() {
           <Users className="w-5 h-5 text-primary" /> About this platform
         </h2>
         <p className="text-gray-500 text-sm">
-          RGIPT Food Court is a student-built ordering system connecting campus shops with hostellers,
-          especially for the hours after the hostel gates close. Shops set and keep their own prices;
+          {CAMPUS_NAME} is a campus food ordering system connecting campus shops with hostellers,
+          with the ordering and pickup/delivery options enabled by the campus operator. Shops set and keep their own prices;
           the platform's only revenue is the small service and processing fees shown at checkout.
         </p>
       </div>
@@ -67,8 +68,8 @@ export default function Support() {
         </h2>
         <p className="text-gray-500 text-sm">
           Email us at{' '}
-          <a href="mailto:support@collegeconnect4u.in" className="text-primary underline">
-            support@collegeconnect4u.in
+          <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary underline">
+            {SUPPORT_EMAIL}
           </a>{' '}
           with your order number (if relevant) and a description of the issue. We'll get back to you as soon as we can.
         </p>
