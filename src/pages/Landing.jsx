@@ -3,11 +3,13 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Clock, Moon, Store } from 'lucide-react'
 import { usePublicSettings } from '../api/queries'
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const loginUrl = `${API_BASE_URL}/api/auth/google`
+
 export default function Landing() {
   const { data: settings } = usePublicSettings()
   const [searchParams] = useSearchParams()
   const loginError = searchParams.get('loginError')
-  const loginUrl = `${import.meta.env.VITE_API_URL}/api/auth/google`
 
   return (
     <div className="min-h-screen bg-secondary text-canvas flex flex-col relative overflow-hidden">
@@ -24,7 +26,7 @@ export default function Landing() {
           )}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-canvas/80 text-xs font-medium mb-8 backdrop-blur-sm">
             <Moon className="w-3.5 h-3.5" />
-            Open when the campus gates aren't
+            Campus food, without the wait
           </div>
 
           <h1 className="font-display text-6xl sm:text-7xl font-extrabold leading-[0.95] mb-5">
@@ -44,7 +46,7 @@ export default function Landing() {
             Continue with Google
           </button>
           <p className="text-xs text-canvas/40 mt-4 max-w-xs mx-auto">
-            For RGIPT students. Other emails can still sign in.
+            Sign-in is limited to the campus domain and accounts configured by the administrator.
           </p>
 
           {settings && (
@@ -57,9 +59,9 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16 max-w-3xl w-full">
           {[
-            { icon: Store, title: 'Skip the wait', body: 'Order ahead, walk down, pick it up. No asking if it\'s ready — the shop pings you the moment it is.' },
+            { icon: Store, title: 'Skip the wait', body: "Order ahead, walk down, pick it up. No asking if it's ready — the shop pings you the moment it is." },
             { icon: Clock, title: 'Live tracking', body: 'Watch it go from Accepted → Preparing → Ready for pickup, in real time.' },
-            { icon: Moon, title: 'After-hours too', body: 'Built for juniors who can\'t leave campus late. Hostel delivery when the gates are shut.' },
+            { icon: Moon, title: 'Campus convenience', body: 'Browse campus shops, place an order, and follow its status from your phone.' },
           ].map(({ icon: Icon, title, body }) => (
             <div key={title} className="rounded-xl bg-white/5 border border-white/10 p-5 text-left backdrop-blur-sm">
               <Icon className="w-5 h-5 text-primary mb-3" />
