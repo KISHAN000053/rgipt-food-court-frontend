@@ -56,7 +56,7 @@ export default function Support() {
           <Users className="w-5 h-5 text-primary" /> About this platform
         </h2>
         <p className="text-gray-500 text-sm">
-          {CAMPUS_NAME} is a campus food ordering system connecting campus shops with hostellers,
+          {CAMPUS_NAME} is a campus food ordering system connecting students with participating campus shops,
           with the ordering and pickup/delivery options enabled by the campus operator. Shops set and keep their own prices;
           the platform's only revenue is the small service and processing fees shown at checkout.
         </p>
