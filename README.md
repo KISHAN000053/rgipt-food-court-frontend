@@ -101,6 +101,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for local setup, Vercel deployment,
 - Use strong unique production secrets and restrict database network access.
 - Validate permissions and input on the backend; do not trust client-side role checks.
 - Use HTTPS and test OAuth, CORS, payment verification/webhooks, and error handling before taking real orders.
+- The current browser auth flow stores a JWT in `localStorage` as a fallback for browsers that block cross-site cookies. This is more exposed to cross-site scripting than an httpOnly-cookie-only design; avoid injecting untrusted HTML and consider a same-site backend-for-frontend session design before scaling to sensitive/high-volume use.
 
 ## Contributing and security
 
