@@ -25,7 +25,7 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || 'RGIPT Food Court', options)
+    self.registration.showNotification(data.title || 'Campus Food Court', options)
   );
 });
 
