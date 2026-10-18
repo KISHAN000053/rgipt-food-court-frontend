@@ -23,10 +23,10 @@ export function clearToken() {
   try { localStorage.removeItem(TOKEN_KEY) } catch (e) { /* ignore */ }
 }
 
+const API_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
-    ? `${import.meta.env.VITE_API_URL}/api`
-    : '/api',
+  baseURL: API_ORIGIN ? `${API_ORIGIN}/api` : '/api',
   withCredentials: true,
 })
 
