@@ -1,17 +1,18 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { CAMPUS_NAME, INSTITUTION_NAME } from '../config/branding'
 
 export default function Terms() {
   return (
     <div className="max-w-3xl mx-auto p-6 sm:p-10 prose prose-sm">
       <Link to="/" className="text-primary text-sm font-medium hover:underline">&larr; Back</Link>
       <h1 className="text-3xl font-bold text-secondary mt-4 mb-2">Terms of Service</h1>
-      <p className="text-gray-400 text-sm mb-8">Last updated: August 2026</p>
+      <p className="text-gray-400 text-sm mb-8">Last updated: October 2026</p>
 
       <h2>1. What this Service is — and isn't</h2>
       <p>
-        RGIPT Food Court ("the Service", "Platform", "we", "us") is a technology platform that lets members of
-        the RGIPT community place food orders with independent campus shops and pay for them online. We are an
+        {CAMPUS_NAME} ("the Service", "Platform", "we", "us") is a technology platform that lets members of
+        the {INSTITUTION_NAME} community place food orders with independent campus shops and pay for them online. We are an
         <strong> intermediary only</strong>. We do not prepare, cook, handle, package, store, or deliver food, and we
         are not a restaurant, caterer, or food business. Each participating shop is an independent business,
         solely responsible for the food it sells. When you place an order, the contract of sale for that food is
@@ -28,7 +29,7 @@ export default function Terms() {
 
       <h2>2. Who can use it</h2>
       <p>
-        The Service is intended for RGIPT students, staff, and campus shop owners, who must be at least 18 years
+        The Service is intended for members of the {INSTITUTION_NAME} community and participating campus shop owners, who must be at least 18 years
         old or otherwise capable of entering a binding contract under applicable law. You must sign in with a
         valid Google account. Shop-owner and admin access is granted individually by us and cannot be
         self-assigned; using such access without authorization is a violation of these Terms and may be treated
