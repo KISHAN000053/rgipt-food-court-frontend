@@ -102,6 +102,10 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for local setup, Vercel deployment,
 - Validate permissions and input on the backend; do not trust client-side role checks.
 - Use HTTPS and test OAuth, CORS, payment verification/webhooks, and error handling before taking real orders.
 
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development checks and [SECURITY.md](SECURITY.md) for vulnerability reporting and secret-rotation guidance.
+
 ## License
 
 This repository includes an MIT license, permitting commercial use, modification, and redistribution subject to its terms. Third-party services and assets have their own terms. This README is not a guarantee of production readiness.
