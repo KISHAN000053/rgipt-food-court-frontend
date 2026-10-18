@@ -5,6 +5,10 @@ import { useAuth } from '../../hooks/useAuth'
 import { useCart } from '../../hooks/useCart'
 import CartDrawer from '../CartDrawer'
 
+const CAMPUS_NAME = import.meta.env.VITE_CAMPUS_NAME || 'RGIPT Food Court'
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const LOGIN_URL = `${API_BASE_URL}/api/auth/google`
+
 export default function Navbar() {
   const { user } = useAuth()
   const { itemCount } = useCart()
@@ -25,7 +29,7 @@ export default function Navbar() {
             <div className="flex items-center">
               <Link to={user ? homeLink : "/"} className="flex items-center gap-2">
                 <Flame className="w-8 h-8 text-primary" />
-                <span className="font-bold text-xl hidden sm:block">RGIPT Food Court</span>
+                <span className="font-bold text-xl hidden sm:block">{CAMPUS_NAME}</span>
               </Link>
             </div>
             
@@ -62,7 +66,7 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <button onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition">
+                <button onClick={() => window.location.href = LOGIN_URL} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-deep transition">
                   Login
                 </button>
               )}
